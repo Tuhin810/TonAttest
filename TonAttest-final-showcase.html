@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>TonAttest — Verify what happened on-chain</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="page">
+        <div class="wrap">
+
+            <nav>
+                <a class="logo" href="#"><span class="logo-mark"></span>TonAttest</a>
+                <div class="links"><a href="#architecture">Architecture</a><a href="#engine">Rule engine</a><a
+                        href="#decoder">Decoding</a><a href="#verification">Verification</a><a
+                        href="#security">Security</a></div>
+                <div class="nav-right"><a href="https://github.com" target="_blank">GitHub</a><a class="nav-cta"
+                        href="#start">Get started</a></div>
+            </nav>
+
+            <section class="hero">
+                <div class="hero-copy">
+                    <div class="eyebrow">Proof-of-action infrastructure · TON</div>
+                    <h1>Don't trust the claim. <span>Verify it.</span></h1>
+                    <p>TonAttest turns real STON.fi activity into programmable, signed proof. Your app defines the rule.
+                        We resolve the chain, evaluate the evidence and return an attestation your backend can verify
+                        offline.</p>
+                    <div class="actions"><a class="btn primary" href="#architecture">Explore the system</a><a
+                            class="btn secondary" href="#engine">View rule engine</a></div>
+                </div>
+                <div class="hero-art">
+                    <img src="assets/hero_stack.jpg" alt="TonAttest attestation stack">
+                </div>
+            </section>
+
+            <div class="trust-strip">
+                <div class="trust-item"><b>Non-custodial</b><span>Verification never moves funds</span></div>
+                <div class="trust-item"><b>Offline-verifiable</b><span>Ed25519 signed attestations</span></div>
+                <div class="trust-item"><b>Self-hostable</b><span>Open-source verification service</span></div>
+                <div class="trust-item"><b>MIT licensed</b><span>Built for TON developers</span></div>
+            </div>
+
+            <section class="section reveal" id="architecture">
+                <div class="section-head">
+                    <div class="kicker">01 — Architecture</div>
+                    <h2>A thin verification layer between your app and the chain.</h2>
+                    <p class="sub">The architecture keeps the differentiated logic — rules, evidence and attestations —
+                        independent from the data provider and from reward settlement.</p>
+                </div>
+                <div class="arch">
+                    <div class="arch-grid">
+                        <div class="arch-box"><b>Your TON app</b><small>Mini App · dApp · bot<br><br>@ston-rewards
+                                SDK<br>createCampaign() · verify()</small></div>
+                        <div class="arrow">→</div>
+                        <div class="service">
+                            <div class="service-head"><b>Verification service</b><span class="live">SELF-HOSTABLE</span>
+                            </div>
+                            <div class="modules">
+                                <div class="module"><b>01 / RULES</b>Typed DSL + evaluation</div>
+                                <div class="module"><b>02 / VERIFIER</b>Activity resolution</div>
+                                <div class="module"><b>03 / EVIDENCE</b>Exact tx + aggregates</div>
+                                <div class="module"><b>04 / SIGNER</b>Canonical JSON + Ed25519</div>
+                            </div>
+                        </div>
+                        <div class="arrow">→</div>
+                        <div class="arch-box"><b>TON data</b><small>tonapi.io<br>TON Center fallback<br><br>STON.fi
+                                events<br>Postgres activity cache</small></div>
+                    </div>
+                    <div class="data-row">
+                        <div><b>PostgreSQL</b><br>campaigns · rules · attestations</div>
+                        <div><b>Redis</b><br>TTL cache · rate limits · idempotency</div>
+                        <div><b>DataProvider</b><br>replace indexing without rewriting rules</div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section reveal" id="engine">
+                <div class="section-head">
+                    <div class="kicker">02 — Rule engine</div>
+                    <h2>The technique that makes TonAttest more than a transaction checker.</h2>
+                    <p class="sub">Rules are composable condition trees. The SDK provides typed builders while the
+                        service evaluates bounded, explainable logic and returns evidence for every leaf.</p>
+                </div>
+                <div class="tech-tabs">
+                    <button class="tab active" onclick="showRule(0,this)"><b>Composite</b><span>Volume +
+                            commitment</span></button>
+                    <button class="tab" onclick="showRule(1,this)"><b>Either path</b><span>Two ways to
+                            qualify</span></button>
+                    <button class="tab" onclick="showRule(2,this)"><b>Threshold</b><span>Single campaign
+                            condition</span></button>
+                </div>
+                <div class="tech-panel">
+                    <div class="explain">
+                        <h3 id="ruleTitle">AND / composite eligibility</h3>
+                        <p id="ruleText">Both conditions must be satisfied. This is where simple transaction filters
+                            become a reusable campaign primitive.</p>
+                        <div class="points">
+                            <div class="point"><b>Conditions:</b> swap + LP hold</div>
+                            <div class="point"><b>Evidence:</b> exact tx hashes + aggregates</div>
+                            <div class="point"><b>Bound:</b> combinators nest to max depth 3</div>
+                        </div>
+                    </div>
+                    <div class="code" id="ruleCode"><span class="c">// real volume AND real commitment</span><br><span
+                            class="p">rule</span>(<span class="p">all</span>(<br>&nbsp;&nbsp;<span
+                            class="p">swap</span>({ <span class="n">minVolumeUsd</span>: <span class="n">100</span>,
+                        <span class="n">token</span>: <span class="s">"USDT"</span> }),<br>&nbsp;&nbsp;<span
+                            class="p">lpHold</span>({ <span class="n">pool</span>: <span class="s">"TON/USDT"</span>,
+                        <span class="n">minDuration</span>: <span class="s">"7d"</span> })<br>))
+                    </div>
+                </div>
+            </section>
+
+            <section class="section reveal" id="decoder">
+                <div class="section-head">
+                    <div class="kicker">03 — STON.fi decoding</div>
+                    <h2>We reconstruct actions from events instead of trusting labels.</h2>
+                    <p class="sub">The highest-risk technical component is isolated behind a decoding layer. Known
+                        STON.fi router/pool addresses and official SDK structures turn raw chain events into normalized
+                        activity.</p>
+                </div>
+                <div class="decoder">
+                    <article class="decode-card">
+                        <div class="mini-chain"><span class="tx">TX</span><span>→</span><span
+                                class="tx active">JETTON</span><span>→</span><span class="tx">POOL</span></div>
+                        <div class="decode-num">01 / RESOLVE</div>
+                        <h3>Find the wallet's events</h3>
+                        <p>Check Redis freshness first. Pull from tonapi when stale and refresh the activity cache.</p>
+                    </article>
+                    <article class="decode-card">
+                        <div class="mini-chain"><span class="tx">ROUTER</span><span>+</span><span
+                                class="tx active">OP</span><span>+</span><span class="tx">POOL</span></div>
+                        <div class="decode-num">02 / DECODE</div>
+                        <h3>Decode the operation</h3>
+                        <p>Match known addresses and decode Jetton transfer payloads using official STON.fi SDK types.
+                        </p>
+                    </article>
+                    <article class="decode-card">
+                        <div class="mini-chain"><span class="tx active">SWAP</span><span>→</span><span
+                                class="tx">USDT</span><span>→</span><span class="tx">TON</span></div>
+                        <div class="decode-num">03 / NORMALIZE</div>
+                        <h3>Create canonical evidence</h3>
+                        <p>Normalize action, token, pool, amount and timestamp so the rule engine can evaluate
+                            deterministic activity.</p>
+                    </article>
+                </div>
+            </section>
+
+            <section class="dark-section reveal" id="verification">
+                <div class="section-head">
+                    <div class="kicker">04 — Verification pipeline</div>
+                    <h2>From “I did it” to a proof your backend can check.</h2>
+                    <p class="sub">The service verifies on claim. No permanent eligibility state is trusted; the current
+                        activity is resolved, evaluated and signed.</p>
+                </div>
+                <div class="pipeline">
+                    <div class="step">
+                        <div class="num">01</div><b>REQUEST</b><small>wallet + campaign</small>
+                    </div>
+                    <div class="step">
+                        <div class="num">02</div><b>AUTH</b><small>API key + idempotency</small>
+                    </div>
+                    <div class="step">
+                        <div class="num">03</div><b>RESOLVE</b><small>cache → tonapi</small>
+                    </div>
+                    <div class="step">
+                        <div class="num">04</div><b>EVALUATE</b><small>rule + evidence</small>
+                    </div>
+                    <div class="step">
+                        <div class="num">05</div><b>SIGN</b><small>canonical JSON</small>
+                    </div>
+                    <div class="step">
+                        <div class="num">06</div><b>RETURN</b><small>proof / ineligible</small>
+                    </div>
+                </div>
+                <div class="attestation">
+                    <div class="json"><b>attestation</b> {<br>&nbsp;&nbsp;project: <span>"prj_abc"</span>, wallet:
+                        <span>"EQ..."</span>,<br>&nbsp;&nbsp;rule_hash: <span>"sha256:..."</span>, eligible:
+                        <span>true</span>,<br>&nbsp;&nbsp;evidence_hash:
+                        <span>"sha256:..."</span>,<br>&nbsp;&nbsp;issued_at: <span>1755300000</span>, expires_at:
+                        <span>1755303600</span>,<br>&nbsp;&nbsp;nonce: <span>"..."</span><br>}
+                    </div>
+                    <div class="verified">✓<br>ED25519<br>OFFLINE VERIFIABLE</div>
+                </div>
+            </section>
+
+            <section class="section reveal" id="security">
+                <div class="section-head">
+                    <div class="kicker">05 — Anti-abuse</div>
+                    <h2>Layered defenses, with the limits stated plainly.</h2>
+                    <p class="sub">The system is designed to make common reward farming expensive without pretending a
+                        rule engine can solve coordinated identity attacks.</p>
+                </div>
+                <div class="security-grid">
+                    <div class="security-card">
+                        <h3>Net-volume counting</h3>
+                        <p>Use |buys − sells| per token pair instead of gross volume by default.</p>
+                        <div class="pills"><span class="pill">DEFAULT</span><span class="pill">WASH RESISTANCE</span>
+                        </div>
+                    </div>
+                    <div class="security-card">
+                        <h3>Per-wallet caps</h3>
+                        <p>Limit maximum rewardable volume per wallet for each campaign.</p>
+                        <div class="pills"><span class="pill">CAMPAIGN</span></div>
+                    </div>
+                    <div class="security-card">
+                        <h3>Cooldowns</h3>
+                        <p>Require minimum time between qualifying actions.</p>
+                        <div class="pills"><span class="pill">MIN INTERVAL</span></div>
+                    </div>
+                    <div class="security-card">
+                        <h3>Replay guard</h3>
+                        <p>tx_hash is unique in the activity cache, so one event cannot count twice.</p>
+                        <div class="pills"><span class="pill">UNIQUE TX</span></div>
+                    </div>
+                    <div class="security-card">
+                        <h3>Wallet-age floor</h3>
+                        <p>Optionally ignore wallets younger than a configured number of days.</p>
+                        <div class="pills"><span class="pill">OPTIONAL</span></div>
+                    </div>
+                    <div class="security-card">
+                        <h3>Sybil boundary</h3>
+                        <p>Multi-wallet rings remain unsolved in v1. Apps can combine attestations with their own
+                            identity layer.</p>
+                        <div class="pills"><span class="pill">HONEST LIMIT</span></div>
+                    </div>
+                </div>
+                <div class="honest"><b>Design principle:</b> don't claim “Sybil-proof”. Prove the on-chain action
+                    accurately, then let the integrating app add its identity signal.</div>
+            </section>
+
+            <section class="section reveal">
+                <div class="section-head">
+                    <div class="kicker">06 — Technology</div>
+                    <h2>Replaceable infrastructure around a focused primitive.</h2>
+                    <p class="sub">The v1 architecture deliberately avoids running a custom TON indexer. A DataProvider
+                        boundary lets the data layer evolve without rewriting the rules engine.</p>
+                </div>
+                <div class="stack"><span>TypeScript · Node 20+</span><span>Fastify</span><span>tonapi.io</span><span>TON
+                        Center</span><span>@ston-fi/sdk</span><span>@ston-fi/api</span><span>PostgreSQL
+                        16</span><span>Redis</span><span>Ed25519</span><span>tsup</span><span>Docker Compose</span>
+                </div>
+            </section>
+
+            <section class="section reveal" id="roadmap">
+                <div class="section-head">
+                    <div class="kicker">07 — Roadmap</div>
+                    <h2>One primitive at a time.</h2>
+                    <p class="sub">The grant scope stays narrow: verify and attest first, then expand only after the
+                        primitive is used.</p>
+                </div>
+                <div class="road">
+                    <article class="phase current"><small>V1 · IN BUILD</small>
+                        <h3>Verify + attest</h3>
+                        <p>SWAP + LP_ADD, composable rules, evidence, signed attestations, SDK, docs and demo Mini App.
+                        </p>
+                    </article>
+                    <article class="phase"><small>PHASE 2</small>
+                        <h3>Settle + scale</h3>
+                        <p>Optional settlement, webhooks, duration scheduler, dashboard, self-hosted indexer and
+                            additional protocols.</p>
+                    </article>
+                    <article class="phase"><small>PHASE 3</small>
+                        <h3>Understand</h3>
+                        <p>Attribution graphs, reputation signals and stronger Sybil heuristics.</p>
+                    </article>
+                </div>
+            </section>
+
+            <section class="cta" id="start">
+                <div>
+                    <div class="kicker">Open source · MIT · self-hostable</div>
+                    <h2>Give TON apps a verification primitive, not another campaign dashboard.</h2>
+                    <p>Write the rule in your code. Verify against the chain. Consume a proof your backend can verify
+                        offline.</p>
+                </div>
+                <div class="actions"><a class="btn primary" href="https://github.com" target="_blank">View GitHub</a><a
+                        class="btn secondary" href="mailto:hello@kryvvo.online">Contact</a></div>
+            </section>
+            <footer><span>TonAttest — proof-of-action infrastructure</span><span>Built by Kryvvo</span></footer>
+
+        </div>
+    </div>
+    <script>
+        const rules = [
+            {
+                title: "AND / composite eligibility",
+                text: "Both conditions must be satisfied. This turns separate on-chain actions into one reusable campaign primitive.",
+                code: `<span class="c">// real volume AND real commitment</span><br><span class="p">rule</span>(<span class="p">all</span>(<br>&nbsp;&nbsp;<span class="p">swap</span>({ <span class="n">minVolumeUsd</span>: <span class="n">100</span>, <span class="n">token</span>: <span class="s">"USDT"</span> }),<br>&nbsp;&nbsp;<span class="p">lpHold</span>({ <span class="n">pool</span>: <span class="s">"TON/USDT"</span>, <span class="n">minDuration</span>: <span class="s">"7d"</span> })<br>))`
+            },
+            {
+                title: "OR / either path",
+                text: "Two different actions can satisfy one reward. Useful when campaigns want multiple ways for a user to qualify.",
+                code: `<span class="c">// frequent trader OR committed provider</span><br><span class="p">rule</span>(<span class="p">any</span>(<br>&nbsp;&nbsp;<span class="p">swap</span>({ <span class="n">count</span>: <span class="n">5</span>, <span class="n">window</span>: <span class="s">"30d"</span> }),<br>&nbsp;&nbsp;<span class="p">lpAdd</span>({ <span class="n">minAmountUsd</span>: <span class="n">500</span> })<br>))`
+            },
+            {
+                title: "Threshold / one condition",
+                text: "Start simple. A single typed condition can be enough for a campaign such as swapping at least $50 during a campaign window.",
+                code: `<span class="c">// simple campaign threshold</span><br><span class="p">rule</span>(<br>&nbsp;&nbsp;<span class="p">swap</span>({<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">minVolumeUsd</span>: <span class="n">50</span>,<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">window</span>: <span class="s">"campaign"</span><br>&nbsp;&nbsp;})<br>)`
+            }];
+        function showRule(i, el) {
+            document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+            el.classList.add('active');
+            document.getElementById('ruleTitle').textContent = rules[i].title;
+            document.getElementById('ruleText').textContent = rules[i].text;
+            document.getElementById('ruleCode').innerHTML = rules[i].code;
+        }
+        const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('show'); io.unobserve(e.target) } }), { threshold: .12 });
+        document.querySelectorAll('.reveal').forEach(x => io.observe(x));
+    </script>
+</body>
+
+</html>
