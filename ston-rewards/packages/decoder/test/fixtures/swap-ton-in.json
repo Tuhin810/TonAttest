@@ -1,0 +1,179 @@
+{
+  "capturedAt": "2026-08-16T19:19:58.386Z",
+  "wallet": "0:56a8387cc22e9e7e103f91f1d0aeff9449e60253d6eb7a656694054a258b122b",
+  "event": {
+    "event_id": "ce56aa5e5832cfe6012601c752642f1b1d467e1cc3768e51675225d529a71a32",
+    "timestamp": 1786907439,
+    "actions": [
+      {
+        "type": "JettonSwap",
+        "status": "ok",
+        "JettonSwap": {
+          "dex": "stonfi",
+          "amount_in": "",
+          "amount_out": "2480587798024",
+          "ton_in": 73119572975,
+          "user_wallet": {
+            "address": "0:56a8387cc22e9e7e103f91f1d0aeff9449e60253d6eb7a656694054a258b122b",
+            "is_scam": false,
+            "is_wallet": true
+          },
+          "router": {
+            "address": "0:779dcc815138d9500e449c5291e7f12738c23d575b5310000f6a253bd607384e",
+            "name": "STON.fi DEX",
+            "is_scam": false,
+            "is_wallet": false
+          },
+          "jetton_master_out": {
+            "address": "0:022d70f08add35b2d8aa2bd16f622268d7996e5737c3e7353cbb00d2aba257c5",
+            "name": "Spintria",
+            "symbol": "SP",
+            "decimals": 8,
+            "image": "https://cache.tonapi.io/imgproxy/1n6JgCgUl5OVenawa4IQnTuZCDwSxpB3gXkW_1kEdGc/rs:fill:200:200:1/g:no/aHR0cHM6Ly9zdGF0aWMueW91c3BhY2UuZGV2L3RvbmNvaW4uanBn.webp",
+            "verification": "whitelist",
+            "score": 72,
+            "description": "SP.one"
+          }
+        },
+        "simple_preview": {
+          "name": "Swap Tokens",
+          "description": "Swapping 73.1 Gram for 24 805 SP",
+          "accounts": [
+            {
+              "address": "0:56a8387cc22e9e7e103f91f1d0aeff9449e60253d6eb7a656694054a258b122b",
+              "is_scam": false,
+              "is_wallet": true
+            },
+            {
+              "address": "0:779dcc815138d9500e449c5291e7f12738c23d575b5310000f6a253bd607384e",
+              "name": "STON.fi DEX",
+              "is_scam": false,
+              "is_wallet": false
+            }
+          ]
+        },
+        "base_transactions": [
+          "f3cb833bf9fc0483f25bcb821538dc6b37195536a20664445a1c4c2f066c38ef",
+          "58b478ee284c609ee30cd7e0e54b21f015d2af99d86f727e03e3e8296b532d45",
+          "a1e2a4a39c3bb7a0e0c6982a329aab65d9f71921a0f8913a234281df93d6aa8d",
+          "1f5aacdda1f95fb36c1ac6d5ad076492ddf917e24e5570c095b144dd9c11b849",
+          "79384d179b5a0cbd7bee76ad06a6c7ecaf3e3e16c411695b5e1639db11791ec2",
+          "a82ad64a441db4cc5dd174986362824f939c17ae35a8321a16ee615282419a5c",
+          "641386759c4928e7aeb35689082d46ed5afdf4cc7a031d9e86d07dd7f42f079b"
+        ]
+      }
+    ],
+    "value_flow": [
+      {
+        "account": {
+          "address": "0:109f4e228bac01bf0eee03b7f006c458aeabeb04699ab28f3bfb2fa61ded9b04",
+          "is_scam": false,
+          "is_wallet": false
+        },
+        "ton": -160,
+        "gram": -160,
+        "fees": 887895
+      },
+      {
+        "account": {
+          "address": "0:407630b79a2487dfc6807eabe14fea5ffdb5666afef2b3c5d165c36f02bb25ab",
+          "is_scam": false,
+          "is_wallet": false
+        },
+        "ton": -36,
+        "gram": -36,
+        "fees": 1262505
+      },
+      {
+        "account": {
+          "address": "0:b2ab726080145e040fdccedaad453f00bdf96bb4ff8949f34fb50027e5b97376",
+          "is_scam": false,
+          "is_wallet": false
+        },
+        "ton": 9481359,
+        "gram": 9481359,
+        "fees": 585308
+      },
+      {
+        "account": {
+          "address": "0:56a8387cc22e9e7e103f91f1d0aeff9449e60253d6eb7a656694054a258b122b",
+          "is_scam": false,
+          "is_wallet": true
+        },
+        "ton": -73134918390,
+        "gram": -73134918390,
+        "fees": 659204,
+        "jettons": [
+          {
+            "account": {
+              "address": "0:022d70f08add35b2d8aa2bd16f622268d7996e5737c3e7353cbb00d2aba257c5",
+              "is_scam": false,
+              "is_wallet": false
+            },
+            "jetton": {
+              "address": "0:022d70f08add35b2d8aa2bd16f622268d7996e5737c3e7353cbb00d2aba257c5",
+              "name": "Spintria",
+              "symbol": "SP",
+              "decimals": 8,
+              "image": "https://cache.tonapi.io/imgproxy/1n6JgCgUl5OVenawa4IQnTuZCDwSxpB3gXkW_1kEdGc/rs:fill:200:200:1/g:no/aHR0cHM6Ly9zdGF0aWMueW91c3BhY2UuZGV2L3RvbmNvaW4uanBn.webp",
+              "verification": "whitelist",
+              "score": 72,
+              "description": "SP.one"
+            },
+            "qty": "2480587798024",
+            "quantity": 2480587798024
+          }
+        ]
+      },
+      {
+        "account": {
+          "address": "0:779dcc815138d9500e449c5291e7f12738c23d575b5310000f6a253bd607384e",
+          "name": "STON.fi DEX",
+          "is_scam": false,
+          "is_wallet": false
+        },
+        "ton": -46,
+        "gram": -46,
+        "fees": 1895317,
+        "jettons": [
+          {
+            "account": {
+              "address": "0:022d70f08add35b2d8aa2bd16f622268d7996e5737c3e7353cbb00d2aba257c5",
+              "is_scam": false,
+              "is_wallet": false
+            },
+            "jetton": {
+              "address": "0:022d70f08add35b2d8aa2bd16f622268d7996e5737c3e7353cbb00d2aba257c5",
+              "name": "Spintria",
+              "symbol": "SP",
+              "decimals": 8,
+              "image": "https://cache.tonapi.io/imgproxy/1n6JgCgUl5OVenawa4IQnTuZCDwSxpB3gXkW_1kEdGc/rs:fill:200:200:1/g:no/aHR0cHM6Ly9zdGF0aWMueW91c3BhY2UuZGV2L3RvbmNvaW4uanBn.webp",
+              "verification": "whitelist",
+              "score": 72,
+              "description": "SP.one"
+            },
+            "qty": "-2480587798024",
+            "quantity": -2480587798024
+          }
+        ]
+      },
+      {
+        "account": {
+          "address": "0:1150b518b2626ad51899f98887f8824b70065456455f7fe2813f012699a4061f",
+          "name": "join-hashtag-on-tele-gram.ton",
+          "is_scam": false,
+          "is_wallet": false
+        },
+        "ton": 73119572969,
+        "gram": 73119572969,
+        "fees": 574075
+      }
+    ],
+    "is_scam": false,
+    "lt": 97218775000001,
+    "in_progress": false,
+    "progress": 1,
+    "last_slice_id": 86547458,
+    "ext_msg_hash": "aadfdf413cc2fff289c76b2706ac4b71fad99a217ebbcceb92af3cf78b393407"
+  }
+}

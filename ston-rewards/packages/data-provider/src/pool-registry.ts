@@ -1,13 +1,21 @@
-import { StonRewardsError, normalizeAddress } from "@ston-rewards/core-types";
+import {
+  StonRewardsError,
+  canonicalAsset,
+  normalizeAddress,
+} from "@ston-rewards/core-types";
 import { fetchJsonWithRetry, DEFAULT_RETRY, type RetryOptions } from "./http.js";
 import { isRecord } from "./tonapi.js";
 
 export interface PoolInfo {
   /** Raw-form pool contract address. */
   readonly address: string;
+  /** The router this pool belongs to. Scopes pool lookup — see `byPair`. */
+  readonly router: string;
+  /** Canonical assets: every spelling of native TON collapses to "TON". */
   readonly token0: string;
   readonly token1: string;
   readonly lpJetton?: string;
+  readonly deprecated: boolean;
 }
 
 /**
@@ -19,6 +27,12 @@ export interface PoolInfo {
 export interface PoolRegistrySnapshot {
   readonly pools: ReadonlyMap<string, PoolInfo>;
   readonly routers: ReadonlySet<string>;
+  /**
+   * Pools indexed by `router|assetA|assetB` with the asset pair sorted, so a
+   * swap that names only its router and token pair can still be attributed.
+   * Keys with more than one pool stay ambiguous and are left unattributed.
+   */
+  readonly byPair: ReadonlyMap<string, readonly PoolInfo[]>;
   readonly fetchedAt: number;
 }
 
@@ -133,6 +147,7 @@ export function parsePoolsResponse(
   }
 
   const pools = new Map<string, PoolInfo>();
+  const byPair = new Map<string, PoolInfo[]>();
   // Every address is reduced to canonical raw form on the way in. STON.fi
   // publishes user-friendly base64 while chain events carry raw addresses;
   // indexing them in different spellings means no lookup ever hits.
@@ -143,22 +158,29 @@ export function parsePoolsResponse(
   for (const entry of list) {
     if (!isRecord(entry)) continue;
     const address = normalizeAddress(asString(entry["address"]));
-    const token0 = normalizeAddress(asString(entry["token0_address"]));
-    const token1 = normalizeAddress(asString(entry["token1_address"]));
-    if (!address || !token0 || !token1) continue;
+    const router = normalizeAddress(asString(entry["router_address"]));
+    const token0 = canonicalAsset(asString(entry["token0_address"]));
+    const token1 = canonicalAsset(asString(entry["token1_address"]));
+    if (!address || !router || !token0 || !token1) continue;
 
     const lpJetton = normalizeAddress(
       asString(entry["lp_account_address"]) ?? asString(entry["lp_jetton"]),
     );
-    pools.set(address, {
+    const pool: PoolInfo = {
       address,
+      router,
       token0,
       token1,
       ...(lpJetton ? { lpJetton } : {}),
-    });
+      deprecated: entry["deprecated"] === true,
+    };
+    pools.set(address, pool);
+    routers.add(router);
 
-    const router = normalizeAddress(asString(entry["router_address"]));
-    if (router) routers.add(router);
+    const key = pairKey(router, token0, token1);
+    const bucket = byPair.get(key);
+    if (bucket) bucket.push(pool);
+    else byPair.set(key, [pool]);
   }
 
   if (pools.size === 0) {
@@ -169,7 +191,13 @@ export function parsePoolsResponse(
     );
   }
 
-  return { pools, routers, fetchedAt };
+  return { pools, routers, byPair, fetchedAt };
+}
+
+/** Router-scoped, order-independent key for a token pair. */
+export function pairKey(router: string, assetA: string, assetB: string): string {
+  const [first, second] = assetA <= assetB ? [assetA, assetB] : [assetB, assetA];
+  return `${router}|${first}|${second}`;
 }
 
 function asString(value: unknown): string | undefined {

@@ -1,0 +1,372 @@
+{
+  "capturedAt": "2026-08-16T19:20:00.697Z",
+  "wallet": "0:9e0616b6ba05ff23bbcfd12cc43c168ef075c91d625efacaf634907aeadf28ce",
+  "event": {
+    "event_id": "e65f6de19e1bdb3cff66d6cf3aaeac67ee97ec33ad82e296877a6c87b1a31ea0",
+    "timestamp": 1786906990,
+    "actions": [
+      {
+        "type": "JettonSwap",
+        "status": "ok",
+        "JettonSwap": {
+          "dex": "stonfi",
+          "amount_in": "",
+          "amount_out": "2855399",
+          "ton_in": 2130895143,
+          "user_wallet": {
+            "address": "0:9e0616b6ba05ff23bbcfd12cc43c168ef075c91d625efacaf634907aeadf28ce",
+            "is_scam": false,
+            "is_wallet": true
+          },
+          "router": {
+            "address": "0:779dcc815138d9500e449c5291e7f12738c23d575b5310000f6a253bd607384e",
+            "name": "STON.fi DEX",
+            "is_scam": false,
+            "is_wallet": false
+          },
+          "jetton_master_out": {
+            "address": "0:b113a994b5024a16719f69139328eb759596c38a25f59028b146fecdc3621dfe",
+            "name": "Tether USD",
+            "symbol": "USD₮",
+            "decimals": 6,
+            "image": "https://cache.tonapi.io/imgproxy/T3PB4s7oprNVaJkwqbGg54nexKE0zzKhcrPv8jcWYzU/rs:fill:200:200:1/g:no/aHR0cHM6Ly90ZXRoZXIudG8vaW1hZ2VzL2xvZ29DaXJjbGUucG5n.webp",
+            "verification": "whitelist",
+            "score": 100,
+            "description": "Tether Token for Tether USD"
+          }
+        },
+        "simple_preview": {
+          "name": "Swap Tokens",
+          "description": "Swapping 2.13 Gram for 2.85 USD₮",
+          "accounts": [
+            {
+              "address": "0:9e0616b6ba05ff23bbcfd12cc43c168ef075c91d625efacaf634907aeadf28ce",
+              "is_scam": false,
+              "is_wallet": true
+            },
+            {
+              "address": "0:779dcc815138d9500e449c5291e7f12738c23d575b5310000f6a253bd607384e",
+              "name": "STON.fi DEX",
+              "is_scam": false,
+              "is_wallet": false
+            }
+          ]
+        },
+        "base_transactions": [
+          "a462fa44932f4827a03376f31a2f55bd80d66cdc6dd29e996ba02c448e023bad",
+          "761a6d8f29e8282dfc190b32a6c0ab40cb25e6b3ac71863acabed57ee23ce397",
+          "3540429005e0df3fc7c1ea8bee53ca1d6352d6c57de4cddfd8b0f03ef7fc7557",
+          "1b49c2c348c7b44c30fa0cffd505fa7a56305114e1157ea70c6c10c713075d0b",
+          "98ac42194fb35eb0c219c06cddd134d3fa06f5b4b7f4b20a0b438eb4b7ab8613",
+          "0a646e0d78e9f8c3c565072aa9e08c9f0a7b1e722a5167b5f3bfe790703cfe28",
+          "e8177a8ce1a4b5fd63a52df59e1d134dda8741880726e288a2ffba427c186077"
+        ]
+      },
+      {
+        "type": "SmartContractExec",
+        "status": "ok",
+        "SmartContractExec": {
+          "executor": {
+            "address": "0:fc4c9f311160754a99d113877cf583b78e5d16d048819cd4b820168769499d7e",
+            "is_scam": false,
+            "is_wallet": false
+          },
+          "contract": {
+            "address": "0:779dcc815138d9500e449c5291e7f12738c23d575b5310000f6a253bd607384e",
+            "name": "STON.fi DEX",
+            "is_scam": false,
+            "is_wallet": false
+          },
+          "ton_attached": 65779164,
+          "gram_attached": 65779164,
+          "operation": "StonfiPaymentRequest",
+          "payload": "ExitCode: 1158120768\nOwner: 0:5492f827c95ad63903a32f00a2f61bd1db1de7acd1c6ec4823b43cde4940f9dc\nParams:\n  IsRight: true\n  Value:\n    Amount0Out: \"2862\"\n    Amount1Out: \"0\"\n    Token0Address: 0:4eec921b9d4d56a0d94676016d49c26b39b1d7901a7e153e66033f146a0886f4\n    Token1Address: 0:1150b518b2626ad51899f98887f8824b70065456455f7fe2813f012699a4061f\nQueryId: 2040154319280383477\n"
+        },
+        "simple_preview": {
+          "name": "Smart Contract Execution",
+          "description": "Execution of smart contract",
+          "accounts": [
+            {
+              "address": "0:fc4c9f311160754a99d113877cf583b78e5d16d048819cd4b820168769499d7e",
+              "is_scam": false,
+              "is_wallet": false
+            },
+            {
+              "address": "0:779dcc815138d9500e449c5291e7f12738c23d575b5310000f6a253bd607384e",
+              "name": "STON.fi DEX",
+              "is_scam": false,
+              "is_wallet": false
+            }
+          ]
+        },
+        "base_transactions": [
+          "95c76873a9359d1723d12e10f3eab2acad77432e6f127030f76c3486fc467813"
+        ]
+      },
+      {
+        "type": "JettonTransfer",
+        "status": "ok",
+        "JettonTransfer": {
+          "sender": {
+            "address": "0:779dcc815138d9500e449c5291e7f12738c23d575b5310000f6a253bd607384e",
+            "name": "STON.fi DEX",
+            "is_scam": false,
+            "is_wallet": false
+          },
+          "recipient": {
+            "address": "0:5492f827c95ad63903a32f00a2f61bd1db1de7acd1c6ec4823b43cde4940f9dc",
+            "is_scam": false,
+            "is_wallet": false
+          },
+          "senders_wallet": "0:4eec921b9d4d56a0d94676016d49c26b39b1d7901a7e153e66033f146a0886f4",
+          "recipients_wallet": "0:b287ab8d25d67f6f86e67954b328ca294391e096f49ce696d7f3c7356aadeb38",
+          "amount": "2862",
+          "comment": "Call: StonfiSwapOkRef",
+          "jetton": {
+            "address": "0:b113a994b5024a16719f69139328eb759596c38a25f59028b146fecdc3621dfe",
+            "name": "Tether USD",
+            "symbol": "USD₮",
+            "decimals": 6,
+            "image": "https://cache.tonapi.io/imgproxy/T3PB4s7oprNVaJkwqbGg54nexKE0zzKhcrPv8jcWYzU/rs:fill:200:200:1/g:no/aHR0cHM6Ly90ZXRoZXIudG8vaW1hZ2VzL2xvZ29DaXJjbGUucG5n.webp",
+            "verification": "whitelist",
+            "score": 100,
+            "description": "Tether Token for Tether USD"
+          }
+        },
+        "simple_preview": {
+          "name": "Jetton Transfer",
+          "description": "Transferring 0.00286 USD₮",
+          "value": "0.00286 USD₮",
+          "value_image": "https://cache.tonapi.io/imgproxy/T3PB4s7oprNVaJkwqbGg54nexKE0zzKhcrPv8jcWYzU/rs:fill:200:200:1/g:no/aHR0cHM6Ly90ZXRoZXIudG8vaW1hZ2VzL2xvZ29DaXJjbGUucG5n.webp",
+          "accounts": [
+            {
+              "address": "0:5492f827c95ad63903a32f00a2f61bd1db1de7acd1c6ec4823b43cde4940f9dc",
+              "is_scam": false,
+              "is_wallet": false
+            },
+            {
+              "address": "0:779dcc815138d9500e449c5291e7f12738c23d575b5310000f6a253bd607384e",
+              "name": "STON.fi DEX",
+              "is_scam": false,
+              "is_wallet": false
+            },
+            {
+              "address": "0:b113a994b5024a16719f69139328eb759596c38a25f59028b146fecdc3621dfe",
+              "name": "Tether USD",
+              "is_scam": false,
+              "is_wallet": false
+            }
+          ]
+        },
+        "base_transactions": [
+          "34c64ef90da143034b04ecd7b240cf8b885fd27002341d83cb1fc3c4f2779186",
+          "69b1a4b08ec89615e746816cab45a5e80261cda7901a3e782d8225d5d0553446",
+          "a988953aa74b5b4264bd01815e6480389ff399edea3fd8d238a8537d2d861626"
+        ]
+      },
+      {
+        "type": "TonTransfer",
+        "status": "ok",
+        "TonTransfer": {
+          "sender": {
+            "address": "0:5492f827c95ad63903a32f00a2f61bd1db1de7acd1c6ec4823b43cde4940f9dc",
+            "is_scam": false,
+            "is_wallet": false
+          },
+          "recipient": {
+            "address": "0:894aaf0dcca38f68fc7bb550846a8f6135e31778c2fe0d3a40c9c8d9231db870",
+            "is_scam": false,
+            "is_wallet": true
+          },
+          "amount": 64020407
+        },
+        "simple_preview": {
+          "name": "Gram Transfer",
+          "description": "Transferring 0.064 Gram",
+          "value": "0.064 Gram",
+          "accounts": [
+            {
+              "address": "0:5492f827c95ad63903a32f00a2f61bd1db1de7acd1c6ec4823b43cde4940f9dc",
+              "is_scam": false,
+              "is_wallet": false
+            },
+            {
+              "address": "0:894aaf0dcca38f68fc7bb550846a8f6135e31778c2fe0d3a40c9c8d9231db870",
+              "is_scam": false,
+              "is_wallet": true
+            }
+          ]
+        },
+        "base_transactions": [
+          "8128007473dff29ef86751e9375d7628a55618e98052f0948817a3a5bde7cde5"
+        ]
+      }
+    ],
+    "value_flow": [
+      {
+        "account": {
+          "address": "0:fc4c9f311160754a99d113877cf583b78e5d16d048819cd4b820168769499d7e",
+          "is_scam": false,
+          "is_wallet": false
+        },
+        "ton": 490760,
+        "gram": 490760,
+        "fees": 1447042
+      },
+      {
+        "account": {
+          "address": "0:013b2c9393f5829721d0f8dce7908c47aab1a4836f4fdc817c9c4ef2e6a09270",
+          "is_scam": false,
+          "is_wallet": false
+        },
+        "ton": 1,
+        "gram": 1,
+        "fees": 134633
+      },
+      {
+        "account": {
+          "address": "0:5492f827c95ad63903a32f00a2f61bd1db1de7acd1c6ec4823b43cde4940f9dc",
+          "is_scam": false,
+          "is_wallet": false
+        },
+        "ton": -5,
+        "gram": -5,
+        "fees": 364340,
+        "jettons": [
+          {
+            "account": {
+              "address": "0:b113a994b5024a16719f69139328eb759596c38a25f59028b146fecdc3621dfe",
+              "name": "Tether USD",
+              "is_scam": false,
+              "is_wallet": false
+            },
+            "jetton": {
+              "address": "0:b113a994b5024a16719f69139328eb759596c38a25f59028b146fecdc3621dfe",
+              "name": "Tether USD",
+              "symbol": "USD₮",
+              "decimals": 6,
+              "image": "https://cache.tonapi.io/imgproxy/T3PB4s7oprNVaJkwqbGg54nexKE0zzKhcrPv8jcWYzU/rs:fill:200:200:1/g:no/aHR0cHM6Ly90ZXRoZXIudG8vaW1hZ2VzL2xvZ29DaXJjbGUucG5n.webp",
+              "verification": "whitelist",
+              "score": 100,
+              "description": "Tether Token for Tether USD"
+            },
+            "qty": "2862",
+            "quantity": 2862
+          }
+        ]
+      },
+      {
+        "account": {
+          "address": "0:4eec921b9d4d56a0d94676016d49c26b39b1d7901a7e153e66033f146a0886f4",
+          "is_scam": false,
+          "is_wallet": false
+        },
+        "ton": -2,
+        "gram": -2,
+        "fees": 520273
+      },
+      {
+        "account": {
+          "address": "0:b287ab8d25d67f6f86e67954b328ca294391e096f49ce696d7f3c7356aadeb38",
+          "is_scam": false,
+          "is_wallet": false
+        },
+        "ton": 0,
+        "gram": 0,
+        "fees": 133351
+      },
+      {
+        "account": {
+          "address": "0:9e0616b6ba05ff23bbcfd12cc43c168ef075c91d625efacaf634907aeadf28ce",
+          "is_scam": false,
+          "is_wallet": true
+        },
+        "ton": -2202203089,
+        "gram": -2202203089,
+        "fees": 689806,
+        "jettons": [
+          {
+            "account": {
+              "address": "0:b113a994b5024a16719f69139328eb759596c38a25f59028b146fecdc3621dfe",
+              "name": "Tether USD",
+              "is_scam": false,
+              "is_wallet": false
+            },
+            "jetton": {
+              "address": "0:b113a994b5024a16719f69139328eb759596c38a25f59028b146fecdc3621dfe",
+              "name": "Tether USD",
+              "symbol": "USD₮",
+              "decimals": 6,
+              "image": "https://cache.tonapi.io/imgproxy/T3PB4s7oprNVaJkwqbGg54nexKE0zzKhcrPv8jcWYzU/rs:fill:200:200:1/g:no/aHR0cHM6Ly90ZXRoZXIudG8vaW1hZ2VzL2xvZ29DaXJjbGUucG5n.webp",
+              "verification": "whitelist",
+              "score": 100,
+              "description": "Tether Token for Tether USD"
+            },
+            "qty": "2855399",
+            "quantity": 2855399
+          }
+        ]
+      },
+      {
+        "account": {
+          "address": "0:779dcc815138d9500e449c5291e7f12738c23d575b5310000f6a253bd607384e",
+          "name": "STON.fi DEX",
+          "is_scam": false,
+          "is_wallet": false
+        },
+        "ton": -21,
+        "gram": -21,
+        "fees": 2917626,
+        "jettons": [
+          {
+            "account": {
+              "address": "0:b113a994b5024a16719f69139328eb759596c38a25f59028b146fecdc3621dfe",
+              "name": "Tether USD",
+              "is_scam": false,
+              "is_wallet": false
+            },
+            "jetton": {
+              "address": "0:b113a994b5024a16719f69139328eb759596c38a25f59028b146fecdc3621dfe",
+              "name": "Tether USD",
+              "symbol": "USD₮",
+              "decimals": 6,
+              "image": "https://cache.tonapi.io/imgproxy/T3PB4s7oprNVaJkwqbGg54nexKE0zzKhcrPv8jcWYzU/rs:fill:200:200:1/g:no/aHR0cHM6Ly90ZXRoZXIudG8vaW1hZ2VzL2xvZ29DaXJjbGUucG5n.webp",
+              "verification": "whitelist",
+              "score": 100,
+              "description": "Tether Token for Tether USD"
+            },
+            "qty": "-2858261",
+            "quantity": -2858261
+          }
+        ]
+      },
+      {
+        "account": {
+          "address": "0:894aaf0dcca38f68fc7bb550846a8f6135e31778c2fe0d3a40c9c8d9231db870",
+          "is_scam": false,
+          "is_wallet": true
+        },
+        "ton": 63968428,
+        "gram": 63968428,
+        "fees": 51979
+      },
+      {
+        "account": {
+          "address": "0:1150b518b2626ad51899f98887f8824b70065456455f7fe2813f012699a4061f",
+          "name": "join-hashtag-on-tele-gram.ton",
+          "is_scam": false,
+          "is_wallet": false
+        },
+        "ton": 2130895140,
+        "gram": 2130895140,
+        "fees": 589738
+      }
+    ],
+    "is_scam": false,
+    "lt": 97217648000003,
+    "in_progress": false,
+    "progress": 1,
+    "last_slice_id": 86546340,
+    "ext_msg_hash": "35e7454436f8634e870272d28c21f9a83291b420ee95fcaee45fa77a7fd4ca93"
+  }
+}

@@ -93,3 +93,40 @@ export function addressEquals(a: string | null | undefined, b: string | null | u
   const nb = normalizeAddress(b);
   return na !== null && na === nb;
 }
+
+/**
+ * Addresses that all mean "native TON" depending on who is speaking.
+ *
+ * Three sources spell the same asset three ways: chain events name a pTON
+ * (proxy-TON) jetton master, because a DEX pool can only hold jettons; the
+ * STON.fi pool list uses the zero address; and this system uses the {@link
+ * NATIVE_TON} sentinel. Comparing them literally means a TON leg never matches
+ * the TON side of its own pool — which is why swap-to-pool attribution fails
+ * without this table.
+ */
+const TON_EQUIVALENT_MASTERS: ReadonlySet<string> = new Set([
+  // Zero address, as used by the STON.fi pool list.
+  `0:${"00".repeat(32)}`,
+  // pTON v1.
+  "0:8cdc1d7640ad5ee326527fc1ad0514f468b30dc84b0173f0e155f451b4e11f7c",
+  // pTON v2.
+  "0:729c13b6df2c07cbf0a06ab63d34af454f3d320ec1bcd8fb5c6d24d0806a17c2",
+]);
+
+/**
+ * Reduces an asset reference to its canonical form, collapsing every spelling
+ * of native TON onto {@link NATIVE_TON}.
+ *
+ * Returns `null` for anything unparseable — an asset we cannot name is one we
+ * must not silently treat as some other asset.
+ */
+export function canonicalAsset(value: string | null | undefined): string | null {
+  const normalized = normalizeAddress(value);
+  if (normalized === null) return null;
+  return TON_EQUIVALENT_MASTERS.has(normalized) ? NATIVE_TON : normalized;
+}
+
+/** True when the address refers to native TON in any of its spellings. */
+export function isNativeTon(value: string | null | undefined): boolean {
+  return canonicalAsset(value) === NATIVE_TON;
+}

@@ -1,4 +1,4 @@
-import type { PoolRegistrySnapshot, RawEvent } from "@ston-rewards/data-provider";
+import { parsePoolsResponse, type PoolRegistrySnapshot, type RawEvent } from "@ston-rewards/data-provider";
 
 export const WALLET = "0:779dcc815138d9500e449c5291e7f12738c23d575b5310000f6a253bd607384e";
 export const OTHER_WALLET = "0:9c2c05b9dfb2a7460fda48fae7409a32623399933a98a7a15599152f37572b49";
@@ -8,16 +8,37 @@ export const ROUTER = `0:${"33".repeat(32)}`;
 export const USDT = `0:${"aa".repeat(32)}`;
 export const NOT = `0:${"bb".repeat(32)}`;
 
-export function registry(): PoolRegistrySnapshot {
+const ZERO_ADDRESS = `0:${"00".repeat(32)}`;
+
+export function registry(extraPools: readonly Record<string, unknown>[] = []): PoolRegistrySnapshot {
+  // Built through the real parser so tests exercise the same canonicalization
+  // the service uses — including the zero address standing in for native TON.
+  return parsePoolsResponse(
+    [
+      poolEntry(POOL_TON_USDT, ZERO_ADDRESS, USDT),
+      poolEntry(POOL_TON_NOT, ZERO_ADDRESS, NOT),
+      ...extraPools,
+    ],
+    0,
+  );
+}
+
+export function poolEntry(
+  address: string,
+  token0: string,
+  token1: string,
+  extra: Record<string, unknown> = {},
+): Record<string, unknown> {
   return {
-    pools: new Map([
-      [POOL_TON_USDT, { address: POOL_TON_USDT, token0: "TON", token1: USDT }],
-      [POOL_TON_NOT, { address: POOL_TON_NOT, token0: "TON", token1: NOT }],
-    ]),
-    routers: new Set([ROUTER]),
-    fetchedAt: 0,
+    address,
+    router_address: ROUTER,
+    token0_address: token0,
+    token1_address: token1,
+    ...extra,
   };
 }
+
+export { ZERO_ADDRESS };
 
 let seq = 0;
 
@@ -56,23 +77,36 @@ export function swapAction(payload: Record<string, unknown>, status = "ok") {
   };
 }
 
+/**
+ * A STON.fi pool is its own LP jetton master, so liquidity operations appear
+ * as an ordinary mint (deposit) or burn (withdrawal) of the pool's jetton.
+ */
 export function lpAction(
-  type: "DepositLiquidity" | "WithdrawLiquidity",
+  type: "JettonMint" | "JettonBurn",
   payload: Record<string, unknown> = {},
 ) {
+  const party = type === "JettonMint" ? { recipient: WALLET } : { sender: WALLET };
   return {
     type,
     status: "ok",
-    payload: {
-      dex: "stonfi",
-      user_wallet: WALLET,
-      pool: POOL_TON_USDT,
-      lp_amount: "1000",
-      jetton_master_0: "TON",
-      amount_0: "1000000000",
-      jetton_master_1: USDT,
-      amount_1: "5000000",
-      ...payload,
-    },
+    payload: { ...party, jetton: POOL_TON_USDT, amount: "1000", ...payload },
   };
+}
+
+/** A value leg accompanying a liquidity operation in the same event. */
+export function jettonTransfer(
+  from: string,
+  to: string,
+  jetton: string,
+  amount: string,
+) {
+  return {
+    type: "JettonTransfer",
+    status: "ok",
+    payload: { sender: from, recipient: to, jetton, amount },
+  };
+}
+
+export function tonTransfer(from: string, to: string, amount: number) {
+  return { type: "TonTransfer", status: "ok", payload: { sender: from, recipient: to, amount } };
 }

@@ -47,7 +47,12 @@ export interface RawEventPage {
  */
 export interface RawEvent {
   readonly eventId: string;
-  readonly account: string;
+  /**
+   * The account the event was listed under. Absent when an event is fetched
+   * by id rather than through an account listing, and unused by decoding —
+   * attribution is done per action, against the wallet being verified.
+   */
+  readonly account?: string;
   readonly timestamp: number;
   readonly lt: bigint;
   /** False while the event is still being finalized; such events are skipped. */

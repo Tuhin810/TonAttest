@@ -7,16 +7,16 @@
  *
  * Set TONAPI_KEY to raise the rate limit.
  */
-import { StonRewardsError } from "@ston-rewards/core-types";
+import { StonRewardsError, normalizeAddress } from "@ston-rewards/core-types";
 import { PoolRegistry, TonapiProvider } from "@ston-rewards/data-provider";
-import { decodeEvents, normalizeAddress, reconstructPositions } from "@ston-rewards/decoder";
+import { StonFiRateProvider, resolveActivity } from "@ston-rewards/activity";
 
 const DAY = 86_400;
 
 async function main(argv: readonly string[]): Promise<number> {
   const args = parseArgs(argv);
   if (!args.wallet) {
-    console.error("usage: decode <wallet> [--days 30] [--limit 1000] [--json]");
+    console.error("usage: decode <wallet> [--days 30] [--limit 1000] [--usd] [--json]");
     return 2;
   }
 
@@ -32,65 +32,60 @@ async function main(argv: readonly string[]): Promise<number> {
   const provider = new TonapiProvider({
     ...(process.env["TONAPI_KEY"] ? { apiKey: process.env["TONAPI_KEY"] } : {}),
   });
-  const registrySource = new PoolRegistry();
+  const registry = await new PoolRegistry().get();
 
-  const registry = await registrySource.get();
-  const page = await provider.getAccountEvents({ address: wallet, from, to, limit: args.limit });
-  const result = decodeEvents({ events: page.events, registry, wallet });
-
-  const known = result.actions.filter((a) => a.type !== "UNKNOWN");
-  const positions = reconstructPositions(
-    known as Parameters<typeof reconstructPositions>[0],
-  );
+  const { activity, unknownCount, unknownRate } = await resolveActivity({
+    provider,
+    registry,
+    wallet,
+    from,
+    to,
+    limit: args.limit,
+    ...(args.usd ? { rates: new StonFiRateProvider() } : {}),
+  });
 
   if (args.json) {
-    console.log(JSON.stringify({ wallet, from, to, result, positions }, replacer, 2));
+    console.log(JSON.stringify({ activity, unknownCount, unknownRate }, replacer, 2));
     return 0;
   }
 
-  printTable(wallet, from, to, result, positions, page.truncated, registry.pools.size);
-  // A truncated history under-counts volume; exiting non-zero keeps that from
-  // being mistaken for a clean run in a script.
-  return page.truncated ? 1 : 0;
+  printTable(activity, unknownCount, unknownRate, registry.pools.size);
+  return 0;
 }
 
 function printTable(
-  wallet: string,
-  from: number,
-  to: number,
-  result: ReturnType<typeof decodeEvents>,
-  positions: ReturnType<typeof reconstructPositions>,
-  truncated: boolean,
+  activity: Awaited<ReturnType<typeof resolveActivity>>["activity"],
+  unknownCount: number,
+  unknownRate: number,
   poolCount: number,
 ): void {
-  console.log(`wallet   ${wallet}`);
-  console.log(`window   ${iso(from)} .. ${iso(to)}`);
+  const { actions, positions } = activity;
+  console.log(`wallet   ${activity.wallet}`);
+  console.log(`window   ${iso(activity.resolvedFrom)} .. ${iso(activity.resolvedTo)}`);
   console.log(`pools    ${poolCount} known STON.fi pools`);
   console.log("");
 
-  if (result.actions.length === 0) {
+  if (actions.length === 0) {
     console.log("No STON.fi activity in this window.");
   }
 
-  for (const action of result.actions) {
+  for (const action of actions) {
     const when = iso(action.occurredAt);
     switch (action.type) {
       case "SWAP":
         console.log(
           `${when}  SWAP        ${action.amountIn} ${short(action.tokenIn)} ` +
             `-> ${action.amountOut} ${short(action.tokenOut)}  ` +
-            `pool=${action.pool ? short(action.pool) : "ambiguous"}`,
+            `pool=${action.pool ? short(action.pool) : "ambiguous"}${usdSuffix(action.usd)}`,
         );
         break;
       case "LP_ADD":
       case "LP_REMOVE":
         console.log(
           `${when}  ${action.type.padEnd(11)} lp=${action.lpAmount} pool=${short(action.pool)}  ` +
-            action.assets.map((l) => `${l.amount} ${short(l.asset)}`).join(" + "),
+            action.assets.map((l) => `${l.amount} ${short(l.asset)}`).join(" + ") +
+            usdSuffix(action.usd),
         );
-        break;
-      case "UNKNOWN":
-        console.log(`${when}  UNKNOWN     ${JSON.stringify(action.raw).slice(0, 90)}`);
         break;
     }
   }
@@ -104,19 +99,16 @@ function printTable(
   }
 
   // The unknown rate is the early-warning signal for a STON.fi contract change.
-  const rate = result.consideredCount === 0
-    ? 0
-    : (result.unknownCount / result.consideredCount) * 100;
   console.log(
-    `\n${result.actions.length} actions, ` +
-      `${result.unknownCount}/${result.consideredCount} unknown (${rate.toFixed(1)}%)`,
+    `\n${actions.length} actions, ${unknownCount} undecodable ` +
+      `(${(unknownRate * 100).toFixed(1)}%)`,
   );
+}
 
-  if (truncated) {
-    console.log(
-      "\nWARNING: history was truncated by --limit. Volume totals are incomplete.",
-    );
-  }
+function usdSuffix(usd: { amount: number; at: number } | undefined): string {
+  // The rate's observation time is shown because it is not the transaction
+  // time: this is a present-day restatement, not a historical valuation.
+  return usd ? `  ~$${usd.amount.toFixed(2)} @${iso(usd.at)}` : "";
 }
 
 interface Args {
@@ -124,13 +116,15 @@ interface Args {
   days: number;
   limit: number;
   json: boolean;
+  usd: boolean;
 }
 
 function parseArgs(argv: readonly string[]): Args {
-  const args: Args = { wallet: undefined, days: 30, limit: 1_000, json: false };
+  const args: Args = { wallet: undefined, days: 30, limit: 1_000, json: false, usd: false };
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i]!;
     if (arg === "--json") args.json = true;
+    else if (arg === "--usd") args.usd = true;
     else if (arg === "--days") args.days = Number(argv[++i]);
     else if (arg === "--limit") args.limit = Number(argv[++i]);
     else if (!arg.startsWith("--")) args.wallet ??= arg;

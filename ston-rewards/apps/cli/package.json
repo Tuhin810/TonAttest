@@ -3,7 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "bin": { "ston-rewards": "./dist/decode.js" },
+  "bin": {
+    "ston-rewards": "./dist/decode.js"
+  },
   "scripts": {
     "build": "tsup src/decode.ts --format esm --clean",
     "typecheck": "tsc --noEmit",
@@ -12,6 +14,7 @@
   "dependencies": {
     "@ston-rewards/core-types": "workspace:*",
     "@ston-rewards/data-provider": "workspace:*",
-    "@ston-rewards/decoder": "workspace:*"
+    "@ston-rewards/decoder": "workspace:*",
+    "@ston-rewards/activity": "workspace:*"
   }
 }

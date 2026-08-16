@@ -148,7 +148,7 @@ export function parseEventsResponse(body: unknown): RawEvent[] {
     }
     return {
       eventId: str(raw["event_id"], `event ${i} event_id`),
-      account: accountAddress(raw["account"], i),
+      ...accountField(raw["account"]),
       timestamp: num(raw["timestamp"], `event ${i} timestamp`),
       lt: bigintish(raw["lt"] ?? 0, `event ${i} lt`),
       inProgress: raw["in_progress"] === true,
@@ -172,16 +172,17 @@ function parseActions(value: unknown, eventIndex: number): RawAction[] {
   return out;
 }
 
-function accountAddress(value: unknown, i: number): string {
-  if (typeof value === "string") return value;
+/**
+ * The listing endpoint labels each event with the account it was fetched for;
+ * the single-event endpoint does not. Decoding never reads it, so its absence
+ * is not an error.
+ */
+function accountField(value: unknown): { account?: string } {
+  if (typeof value === "string") return { account: value };
   if (isRecord(value) && typeof value["address"] === "string") {
-    return value["address"];
+    return { account: value["address"] };
   }
-  throw new StonRewardsError(
-    "PROVIDER_MALFORMED_RESPONSE",
-    `tonapi event ${i} has no resolvable account address`,
-    { retryable: false },
-  );
+  return {};
 }
 
 function str(value: unknown, what: string): string {

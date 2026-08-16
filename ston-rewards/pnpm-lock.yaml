@@ -23,6 +23,9 @@ importers:
 
   apps/cli:
     dependencies:
+      '@ston-rewards/activity':
+        specifier: workspace:*
+        version: link:../../packages/activity
       '@ston-rewards/core-types':
         specifier: workspace:*
         version: link:../../packages/core-types
@@ -32,6 +35,37 @@ importers:
       '@ston-rewards/decoder':
         specifier: workspace:*
         version: link:../../packages/decoder
+
+  packages/activity:
+    dependencies:
+      '@ston-rewards/core-types':
+        specifier: workspace:*
+        version: link:../core-types
+      '@ston-rewards/data-provider':
+        specifier: workspace:*
+        version: link:../data-provider
+      '@ston-rewards/decoder':
+        specifier: workspace:*
+        version: link:../decoder
+
+  packages/attest:
+    dependencies:
+      '@noble/ed25519':
+        specifier: ^2.2.3
+        version: 2.3.0
+      '@ston-rewards/core-types':
+        specifier: workspace:*
+        version: link:../core-types
+      '@ston-rewards/rules':
+        specifier: workspace:*
+        version: link:../rules
+    devDependencies:
+      '@ston-rewards/data-provider':
+        specifier: workspace:*
+        version: link:../data-provider
+      '@ston-rewards/decoder':
+        specifier: workspace:*
+        version: link:../decoder
 
   packages/core-types: {}
 
@@ -49,6 +83,12 @@ importers:
       '@ston-rewards/data-provider':
         specifier: workspace:*
         version: link:../data-provider
+
+  packages/rules:
+    dependencies:
+      '@ston-rewards/core-types':
+        specifier: workspace:*
+        version: link:../core-types
 
 packages:
 
@@ -365,6 +405,9 @@ packages:
     cpu: [x64]
     os: [linux]
     libc: [glibc]
+
+  '@noble/ed25519@2.3.0':
+    resolution: {integrity: sha512-M7dvXL2B92/M7dw9+gzuydL8qn/jiqNHaoR3Q+cb1q1GHV7uwE17WCyFMG+Y+TZb5izcaXk5TdJRrDUxHXL78A==}
 
   '@rollup/rollup-android-arm-eabi@4.62.4':
     resolution: {integrity: sha512-RrPokAb7dmbxFoeO3TloqHyOjgye8RkBhSqmp4aJMIex4c9r46ZstPnleDQOq1t46VOVjwIuwNogIqbodV1Vvg==}
@@ -1051,6 +1094,8 @@ snapshots:
 
   '@napi-rs/lzma-linux-x64-gnu@1.5.1':
     optional: true
+
+  '@noble/ed25519@2.3.0': {}
 
   '@rollup/rollup-android-arm-eabi@4.62.4':
     optional: true

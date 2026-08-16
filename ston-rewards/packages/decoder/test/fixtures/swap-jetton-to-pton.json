@@ -1,0 +1,227 @@
+{
+  "capturedAt": "2026-08-16T19:19:58.865Z",
+  "wallet": "0:56a8387cc22e9e7e103f91f1d0aeff9449e60253d6eb7a656694054a258b122b",
+  "event": {
+    "event_id": "965336182f25cb6fa2fc35fe4f1a4c11c8186c7387ba18869d0f7adcd0b6ae2e",
+    "timestamp": 1786903027,
+    "actions": [
+      {
+        "type": "JettonSwap",
+        "status": "ok",
+        "JettonSwap": {
+          "dex": "stonfi",
+          "amount_in": "2477142887812",
+          "amount_out": "72505193808",
+          "user_wallet": {
+            "address": "0:56a8387cc22e9e7e103f91f1d0aeff9449e60253d6eb7a656694054a258b122b",
+            "is_scam": false,
+            "is_wallet": true
+          },
+          "router": {
+            "address": "0:779dcc815138d9500e449c5291e7f12738c23d575b5310000f6a253bd607384e",
+            "name": "STON.fi DEX",
+            "is_scam": false,
+            "is_wallet": false
+          },
+          "jetton_master_in": {
+            "address": "0:022d70f08add35b2d8aa2bd16f622268d7996e5737c3e7353cbb00d2aba257c5",
+            "name": "Spintria",
+            "symbol": "SP",
+            "decimals": 8,
+            "image": "https://cache.tonapi.io/imgproxy/1n6JgCgUl5OVenawa4IQnTuZCDwSxpB3gXkW_1kEdGc/rs:fill:200:200:1/g:no/aHR0cHM6Ly9zdGF0aWMueW91c3BhY2UuZGV2L3RvbmNvaW4uanBn.webp",
+            "verification": "whitelist",
+            "score": 72,
+            "description": "SP.one"
+          },
+          "jetton_master_out": {
+            "address": "0:8cdc1d7640ad5ee326527fc1ad0514f468b30dc84b0173f0e155f451b4e11f7c",
+            "name": "Proxy TON",
+            "symbol": "pTON",
+            "decimals": 9,
+            "image": "https://cache.tonapi.io/imgproxy/toPaxMCtW6-H8pCZSAr6CKs4imxulFbGDpJaltIZaEY/rs:fill:200:200:1/g:no/aHR0cHM6Ly9zdGF0aWMuc3Rvbi5maS9sb2dvL2dyYW1fc3ltYm9sLnBuZw.webp",
+            "verification": "whitelist",
+            "score": 0,
+            "description": "Proxy contract for GRAM"
+          }
+        },
+        "simple_preview": {
+          "name": "Swap Tokens",
+          "description": "Swapping 24 771 SP for 72.5 pTON",
+          "accounts": [
+            {
+              "address": "0:56a8387cc22e9e7e103f91f1d0aeff9449e60253d6eb7a656694054a258b122b",
+              "is_scam": false,
+              "is_wallet": true
+            },
+            {
+              "address": "0:779dcc815138d9500e449c5291e7f12738c23d575b5310000f6a253bd607384e",
+              "name": "STON.fi DEX",
+              "is_scam": false,
+              "is_wallet": false
+            }
+          ]
+        },
+        "base_transactions": [
+          "cb1ebf7da7834f1c6aec81628aae582bfbe24d51c1c524e1c7bd4c401103638e",
+          "a7a2b12def3b7d568664580023eed999203bc651e07958c611c1be5341895afb",
+          "aa4a76bc84124b63818363f49934d8ebc231b53e18f6ddfbb217b00910377463",
+          "db3dfe6ef1e4367f7b54cc31a18ee95273723fd3f304967ff53326644f980163",
+          "63f8ae89db51de88ca8f6a3aed0e5e84b6521927e94d3521100a99f4f498efa3",
+          "8341bd93a22540a0997f9f4ceb91caf78bf773b1b88b860f54fb98327d8e0ee8",
+          "49122be6c72a43c1b3a10560a67c069af9da98739f6c518122470795286354d7"
+        ]
+      },
+      {
+        "type": "TonTransfer",
+        "status": "ok",
+        "TonTransfer": {
+          "sender": {
+            "address": "0:1150b518b2626ad51899f98887f8824b70065456455f7fe2813f012699a4061f",
+            "name": "join-hashtag-on-tele-gram.ton",
+            "is_scam": false,
+            "is_wallet": false
+          },
+          "recipient": {
+            "address": "0:56a8387cc22e9e7e103f91f1d0aeff9449e60253d6eb7a656694054a258b122b",
+            "is_scam": false,
+            "is_wallet": true
+          },
+          "amount": 72766883133
+        },
+        "simple_preview": {
+          "name": "Gram Transfer",
+          "description": "Transferring 72.7 Gram",
+          "value": "72.7 Gram",
+          "accounts": [
+            {
+              "address": "0:1150b518b2626ad51899f98887f8824b70065456455f7fe2813f012699a4061f",
+              "name": "join-hashtag-on-tele-gram.ton",
+              "is_scam": false,
+              "is_wallet": false
+            },
+            {
+              "address": "0:56a8387cc22e9e7e103f91f1d0aeff9449e60253d6eb7a656694054a258b122b",
+              "is_scam": false,
+              "is_wallet": true
+            }
+          ]
+        },
+        "base_transactions": [
+          "96d19ae72bd24c580cf40c902e2bfbc24391fcd30ba2b752759eb760a422e5ab"
+        ]
+      }
+    ],
+    "value_flow": [
+      {
+        "account": {
+          "address": "0:407630b79a2487dfc6807eabe14fea5ffdb5666afef2b3c5d165c36f02bb25ab",
+          "is_scam": false,
+          "is_wallet": false
+        },
+        "ton": 9912703,
+        "gram": 9912703,
+        "fees": 883438
+      },
+      {
+        "account": {
+          "address": "0:779dcc815138d9500e449c5291e7f12738c23d575b5310000f6a253bd607384e",
+          "name": "STON.fi DEX",
+          "is_scam": false,
+          "is_wallet": false
+        },
+        "ton": -8,
+        "gram": -8,
+        "fees": 1900879,
+        "jettons": [
+          {
+            "account": {
+              "address": "0:022d70f08add35b2d8aa2bd16f622268d7996e5737c3e7353cbb00d2aba257c5",
+              "is_scam": false,
+              "is_wallet": false
+            },
+            "jetton": {
+              "address": "0:022d70f08add35b2d8aa2bd16f622268d7996e5737c3e7353cbb00d2aba257c5",
+              "name": "Spintria",
+              "symbol": "SP",
+              "decimals": 8,
+              "image": "https://cache.tonapi.io/imgproxy/1n6JgCgUl5OVenawa4IQnTuZCDwSxpB3gXkW_1kEdGc/rs:fill:200:200:1/g:no/aHR0cHM6Ly9zdGF0aWMueW91c3BhY2UuZGV2L3RvbmNvaW4uanBn.webp",
+              "verification": "whitelist",
+              "score": 72,
+              "description": "SP.one"
+            },
+            "qty": "2477142887812",
+            "quantity": 2477142887812
+          }
+        ]
+      },
+      {
+        "account": {
+          "address": "0:109f4e228bac01bf0eee03b7f006c458aeabeb04699ab28f3bfb2fa61ded9b04",
+          "is_scam": false,
+          "is_wallet": false
+        },
+        "ton": -156,
+        "gram": -156,
+        "fees": 887891
+      },
+      {
+        "account": {
+          "address": "0:1150b518b2626ad51899f98887f8824b70065456455f7fe2813f012699a4061f",
+          "name": "join-hashtag-on-tele-gram.ton",
+          "is_scam": false,
+          "is_wallet": false
+        },
+        "ton": -72505193809,
+        "gram": -72505193809,
+        "fees": 522070
+      },
+      {
+        "account": {
+          "address": "0:b2ab726080145e040fdccedaad453f00bdf96bb4ff8949f34fb50027e5b97376",
+          "is_scam": false,
+          "is_wallet": false
+        },
+        "ton": 47787454,
+        "gram": 47787454,
+        "fees": 1416405
+      },
+      {
+        "account": {
+          "address": "0:56a8387cc22e9e7e103f91f1d0aeff9449e60253d6eb7a656694054a258b122b",
+          "is_scam": false,
+          "is_wallet": true
+        },
+        "ton": 72441223966,
+        "gram": 72441223966,
+        "fees": 659167,
+        "jettons": [
+          {
+            "account": {
+              "address": "0:022d70f08add35b2d8aa2bd16f622268d7996e5737c3e7353cbb00d2aba257c5",
+              "is_scam": false,
+              "is_wallet": false
+            },
+            "jetton": {
+              "address": "0:022d70f08add35b2d8aa2bd16f622268d7996e5737c3e7353cbb00d2aba257c5",
+              "name": "Spintria",
+              "symbol": "SP",
+              "decimals": 8,
+              "image": "https://cache.tonapi.io/imgproxy/1n6JgCgUl5OVenawa4IQnTuZCDwSxpB3gXkW_1kEdGc/rs:fill:200:200:1/g:no/aHR0cHM6Ly9zdGF0aWMueW91c3BhY2UuZGV2L3RvbmNvaW4uanBn.webp",
+              "verification": "whitelist",
+              "score": 72,
+              "description": "SP.one"
+            },
+            "qty": "-2477142887812",
+            "quantity": -2477142887812
+          }
+        ]
+      }
+    ],
+    "is_scam": false,
+    "lt": 97207709000008,
+    "in_progress": false,
+    "progress": 1,
+    "last_slice_id": 86536591,
+    "ext_msg_hash": "5ecb58d766c394b15ed87582f2575407d9dae9fc8b308626a049ca8135f4bfa5"
+  }
+}
