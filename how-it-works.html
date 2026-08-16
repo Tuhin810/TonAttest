@@ -1,0 +1,1253 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TonAttest — How it works</title>
+    <meta name="description"
+        content="How TonAttest turns STON.fi activity into signed, offline-verifiable proof: architecture, rule engine, evidence, anti-abuse and delivery status.">
+
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+
+    <style>
+        /* Tokens carried over from the TonAttest site so this page reads as
+           part of it rather than as a separate document. */
+        :root {
+            --bg: #fff;
+            --ink: #101014;
+            --ink-soft: #3a3a44;
+            --muted: #74747d;
+            --line: #e5e5e3;
+            --surface: #f7f6fb;
+            --purple: #7651e8;
+            --violet: #a786ff;
+            --soft: #eee9ff;
+            --dark: #09090c;
+            --green: #16805c;
+            --greenbg: #e2f6ed;
+            --amber: #9a6212;
+            --amberbg: #fbf1de;
+            --sans: "DM Sans", system-ui, sans-serif;
+            --mono: "DM Mono", ui-monospace, monospace;
+            --measure: 66ch;
+            --pad: clamp(20px, 5vw, 56px);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--ink);
+            font-family: var(--sans);
+            font-size: 16.5px;
+            line-height: 1.62;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .wrap {
+            max-width: 1060px;
+            margin: 0 auto;
+            padding: 0 var(--pad);
+        }
+
+        p {
+            max-width: var(--measure);
+        }
+
+        a {
+            color: var(--purple);
+            text-underline-offset: 2px;
+        }
+
+        a:focus-visible,
+        summary:focus-visible {
+            outline: 2px solid var(--purple);
+            outline-offset: 3px;
+            border-radius: 3px;
+        }
+
+        /* ── Nav, matching the main site ─────────────────────────────── */
+        .topbar {
+            border-bottom: 1px solid var(--line);
+            position: sticky;
+            top: 0;
+            background: rgba(255, 255, 255, .92);
+            backdrop-filter: blur(8px);
+            z-index: 10;
+        }
+
+        nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            padding: 14px 0;
+            flex-wrap: wrap;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            font-weight: 700;
+            font-size: 18px;
+            color: var(--ink);
+            text-decoration: none;
+            letter-spacing: -.02em;
+        }
+
+        .logo img {
+            width: 26px;
+            height: 26px;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            font-size: 14.5px;
+        }
+
+        .nav-right a {
+            color: var(--muted);
+            text-decoration: none;
+        }
+
+        .nav-right a:hover {
+            color: var(--ink);
+        }
+
+        .nav-cta {
+            background: var(--ink);
+            color: #fff !important;
+            padding: 8px 15px;
+            border-radius: 7px;
+            font-weight: 500;
+        }
+
+        /* ── Structural label ────────────────────────────────────────── */
+        .label {
+            font-family: var(--mono);
+            font-size: 11px;
+            letter-spacing: .15em;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        /* ── Masthead ────────────────────────────────────────────────── */
+        header.masthead {
+            padding: clamp(44px, 7vw, 84px) 0 clamp(36px, 5vw, 60px);
+            border-bottom: 1px solid var(--line);
+        }
+
+        .masthead-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr);
+            gap: clamp(28px, 5vw, 54px);
+            align-items: end;
+        }
+
+        h1 {
+            font-size: clamp(36px, 6vw, 62px);
+            line-height: 1.03;
+            letter-spacing: -.035em;
+            font-weight: 700;
+            margin: 14px 0 0;
+            text-wrap: balance;
+        }
+
+        h1 span {
+            color: var(--purple);
+        }
+
+        .thesis {
+            font-size: clamp(17px, 2vw, 20px);
+            line-height: 1.52;
+            color: var(--ink-soft);
+            margin-top: 18px;
+            max-width: 42ch;
+        }
+
+        .thesis strong {
+            color: var(--ink);
+            font-weight: 600;
+        }
+
+        /* ── The attestation, shown as the object it is ──────────────── */
+        .seal {
+            background: var(--dark);
+            border-radius: 10px;
+            padding: 20px 22px;
+            font-family: var(--mono);
+            font-size: 12px;
+            line-height: 1.95;
+            color: #b9b9c4;
+            position: relative;
+            overflow-x: auto;
+        }
+
+        .seal .v {
+            color: #fff;
+        }
+
+        .seal .hash {
+            color: var(--violet);
+            word-break: break-all;
+        }
+
+        .seal-stamp {
+            position: absolute;
+            top: -10px;
+            right: 18px;
+            background: var(--greenbg);
+            color: var(--green);
+            padding: 2px 10px;
+            border-radius: 999px;
+            font-size: 10px;
+            letter-spacing: .14em;
+            font-weight: 500;
+        }
+
+        /* ── Sections ────────────────────────────────────────────────── */
+        section {
+            padding-top: clamp(50px, 7vw, 84px);
+        }
+
+        h2 {
+            font-size: clamp(24px, 3.2vw, 34px);
+            line-height: 1.16;
+            letter-spacing: -.028em;
+            font-weight: 700;
+            margin: 11px 0 16px;
+            text-wrap: balance;
+        }
+
+        h3 {
+            font-size: 17.5px;
+            font-weight: 600;
+            letter-spacing: -.012em;
+            margin: 32px 0 9px;
+        }
+
+        /* ── Pipeline strip ──────────────────────────────────────────── */
+        .pipeline {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+            align-items: center;
+            margin: 24px 0;
+            font-family: var(--mono);
+            font-size: 12.5px;
+        }
+
+        .pipeline span {
+            background: var(--surface);
+            border: 1px solid var(--line);
+            padding: 7px 11px;
+            border-radius: 6px;
+            color: var(--ink-soft);
+        }
+
+        .pipeline span.bad {
+            border-color: #e8c9b6;
+            background: var(--amberbg);
+            color: var(--amber);
+        }
+
+        .pipeline i {
+            color: var(--muted);
+            font-style: normal;
+        }
+
+        /* ── Figure plates ───────────────────────────────────────────── */
+        figure {
+            margin: 28px 0 0;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            overflow: hidden;
+            background: #fff;
+        }
+
+        figure .plate {
+            overflow-x: auto;
+            padding: 26px 20px;
+        }
+
+        figure .mermaid {
+            min-width: 540px;
+        }
+
+        figcaption {
+            border-top: 1px solid var(--line);
+            padding: 10px 16px;
+            font-family: var(--mono);
+            font-size: 11px;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            color: var(--muted);
+            background: var(--surface);
+        }
+
+        /* ── Callout ─────────────────────────────────────────────────── */
+        .callout {
+            border-left: 3px solid var(--purple);
+            background: var(--soft);
+            padding: 16px 20px;
+            border-radius: 0 8px 8px 0;
+            margin: 28px 0;
+            max-width: var(--measure);
+        }
+
+        .callout p+p {
+            margin-top: 10px;
+        }
+
+        /* ── Code ────────────────────────────────────────────────────── */
+        pre.code {
+            background: var(--dark);
+            border-radius: 10px;
+            padding: 20px 22px;
+            overflow-x: auto;
+            font-family: var(--mono);
+            font-size: 12.5px;
+            line-height: 1.75;
+            margin: 22px 0;
+            color: #c6c6d2;
+        }
+
+        pre.code .c {
+            color: #6d6d7d;
+        }
+
+        pre.code .p {
+            color: var(--violet);
+        }
+
+        pre.code .n {
+            color: #7fd1ff;
+        }
+
+        pre.code .s {
+            color: #7fd8a8;
+        }
+
+        pre.code b {
+            color: #fff;
+            font-weight: 500;
+        }
+
+        code.inline {
+            font-family: var(--mono);
+            font-size: .86em;
+            background: var(--surface);
+            border: 1px solid var(--line);
+            padding: 1px 5px;
+            border-radius: 4px;
+        }
+
+        /* ── Metrics ─────────────────────────────────────────────────── */
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(152px, 1fr));
+            gap: 10px;
+            margin: 28px 0;
+        }
+
+        .metric {
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 17px 16px;
+        }
+
+        .metric .n {
+            font-size: 29px;
+            font-weight: 700;
+            letter-spacing: -.03em;
+            line-height: 1.1;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .metric .n.good {
+            color: var(--green);
+        }
+
+        .metric .l {
+            margin-top: 4px;
+        }
+
+        /* ── Tables ──────────────────────────────────────────────────── */
+        .table-scroll {
+            overflow-x: auto;
+            margin: 24px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14.5px;
+            min-width: 540px;
+        }
+
+        th {
+            text-align: left;
+            font-family: var(--mono);
+            font-size: 10.5px;
+            letter-spacing: .13em;
+            text-transform: uppercase;
+            color: var(--muted);
+            font-weight: 500;
+            padding: 0 14px 9px 0;
+            border-bottom: 1px solid var(--line);
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 12px 14px 12px 0;
+            border-bottom: 1px solid var(--line);
+            vertical-align: top;
+            color: var(--ink-soft);
+        }
+
+        td:first-child {
+            color: var(--ink);
+            font-weight: 500;
+        }
+
+        td.num {
+            font-variant-numeric: tabular-nums;
+            white-space: nowrap;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* ── Pills ───────────────────────────────────────────────────── */
+        .pill {
+            display: inline-block;
+            font-family: var(--mono);
+            font-size: 10px;
+            letter-spacing: .09em;
+            text-transform: uppercase;
+            padding: 3px 9px;
+            border-radius: 999px;
+            white-space: nowrap;
+        }
+
+        .pill.ok {
+            background: var(--greenbg);
+            color: var(--green);
+        }
+
+        .pill.part {
+            background: var(--amberbg);
+            color: var(--amber);
+        }
+
+        .pill.no {
+            background: #fdeaea;
+            color: #a33;
+        }
+
+        /* ── Phase ledger — numbering encodes a real sequence ────────── */
+        .phases {
+            display: grid;
+            gap: 10px;
+            margin: 28px 0;
+        }
+
+        .phase {
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            display: grid;
+            grid-template-columns: 48px minmax(0, 1fr) auto;
+            gap: 16px;
+            align-items: start;
+            padding: 18px;
+        }
+
+        .phase .no {
+            font-family: var(--mono);
+            font-size: 12px;
+            color: var(--purple);
+            padding-top: 3px;
+        }
+
+        .phase h4 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 2px;
+            letter-spacing: -.01em;
+        }
+
+        .phase p {
+            margin: 0;
+            font-size: 14.5px;
+            color: var(--muted);
+            max-width: 52ch;
+        }
+
+        /* ── Terminal ────────────────────────────────────────────────── */
+        .terminal {
+            background: var(--dark);
+            border-radius: 10px;
+            padding: 19px 22px;
+            font-family: var(--mono);
+            font-size: 12.5px;
+            line-height: 1.9;
+            overflow-x: auto;
+            margin: 24px 0;
+            color: #b9b9c4;
+        }
+
+        .terminal .prompt {
+            color: var(--violet);
+        }
+
+        .terminal .ok {
+            color: #7fd8a8;
+        }
+
+        /* ── Details ─────────────────────────────────────────────────── */
+        details {
+            border-top: 1px solid var(--line);
+            padding: 15px 0;
+            max-width: var(--measure);
+        }
+
+        details:last-of-type {
+            border-bottom: 1px solid var(--line);
+        }
+
+        summary {
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 15.5px;
+            list-style: none;
+            display: flex;
+            gap: 11px;
+            align-items: baseline;
+        }
+
+        summary::-webkit-details-marker {
+            display: none;
+        }
+
+        summary::before {
+            content: "+";
+            color: var(--purple);
+            font-family: var(--mono);
+        }
+
+        details[open] summary::before {
+            content: "–";
+        }
+
+        details p {
+            margin: 11px 0 0 21px;
+        }
+
+        /* ── Footer ──────────────────────────────────────────────────── */
+        footer {
+            border-top: 1px solid var(--line);
+            margin-top: clamp(54px, 8vw, 90px);
+            padding: 24px 0 60px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px 26px;
+            justify-content: space-between;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        @media (max-width: 720px) {
+            .masthead-grid {
+                grid-template-columns: 1fr;
+                align-items: start;
+            }
+
+            .phase {
+                grid-template-columns: 36px minmax(0, 1fr);
+            }
+
+            .phase .pill {
+                grid-column: 2;
+                justify-self: start;
+            }
+
+            .nav-right .hide-sm {
+                display: none;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+
+            html {
+                scroll-behavior: auto;
+            }
+
+            * {
+                animation: none !important;
+                transition: none !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="topbar">
+        <div class="wrap">
+            <nav>
+                <a class="logo" href="/"><img src="assets/logo.png" alt="">TonAttest</a>
+                <div class="nav-right">
+                    <a class="hide-sm" href="/#architecture">Architecture</a>
+                    <a class="hide-sm" href="/#engine">Rule engine</a>
+                    <a href="contact.html">Contact</a>
+                    <a class="nav-cta" href="/#start">Get started</a>
+                </div>
+            </nav>
+        </div>
+    </div>
+
+    <div class="wrap">
+
+        <header class="masthead">
+            <div class="masthead-grid">
+                <div>
+                    <div class="label">How it works &nbsp;·&nbsp; Open source &nbsp;·&nbsp; MIT</div>
+                    <h1>Don't trust the claim. <span>Verify it.</span></h1>
+                    <p class="thesis">
+                        Define a reward rule in your own code. Ask whether a wallet satisfies it.
+                        Get back a <strong>signed, offline-verifiable proof</strong> — and the
+                        evidence behind the answer.
+                    </p>
+                </div>
+
+                <div class="seal" aria-label="Example attestation payload">
+                    <span class="seal-stamp">Ed25519</span>
+                    wallet &nbsp;&nbsp;<span class="v">0:83d606…a62fa03</span><br>
+                    campaign <span class="v">cmp_7f2a91</span><br>
+                    rule &nbsp;&nbsp;&nbsp;&nbsp;<span class="hash">sha256:9c1f…04ba</span><br>
+                    evidence <span class="hash">sha256:2e77…b310</span><br>
+                    eligible <span class="v">true</span><br>
+                    expires &nbsp;<span class="v">+3600s</span> &nbsp; nonce <span class="v">5f3a…</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- 01 ───────────────────────────────────────────────────────── -->
+        <section>
+            <div class="label">01 — The problem</div>
+            <h2>Every team rebuilds the same pipeline, and gets it wrong the same way</h2>
+
+            <p>
+                A Mini App wants to reward real STON.fi activity — <em>swap 100 TON and earn
+                    points</em>, <em>provide liquidity for a week and unlock a perk</em>. Today that
+                means building all of this from scratch:
+            </p>
+
+            <div class="pipeline">
+                <span>fetch transactions</span><i>→</i>
+                <span>decode contract messages</span><i>→</i>
+                <span>match campaign logic</span><i>→</i>
+                <span class="bad">guard against replays</span><i>→</i>
+                <span class="bad">detect fake volume</span><i>→</i>
+                <span>store eligibility</span>
+            </div>
+
+            <p>
+                One to three weeks per app — and each implementation is subtly wrong in the
+                same places. These are not hypotheticals. Each was found by running a decoder
+                against live mainnet data:
+            </p>
+
+            <div class="table-scroll">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>The trap</th>
+                            <th>What it does if you miss it</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Native TON has three on-chain spellings</td>
+                            <td>Compared literally, <em>every</em> TON swap fails to match its own pool</td>
+                        </tr>
+                        <tr>
+                            <td>LP tokens are transferred, not minted</td>
+                            <td>A mint-only decoder sees every liquidity deposit as nothing at all</td>
+                        </tr>
+                        <tr>
+                            <td>Native amounts live in a separate field</td>
+                            <td>Reading only the jetton field silently drops most swaps on the DEX</td>
+                        </tr>
+                        <tr>
+                            <td>Gross volume is free to inflate</td>
+                            <td>Swapping back and forth manufactures unlimited qualifying volume</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout">
+                <p>
+                    Quest platforms solve the <em>campaign website</em> version of this. Nothing
+                    solves the <strong>embedded developer primitive</strong> version — rules
+                    defined in your own code, verified server-side, consumed programmatically.
+                </p>
+            </div>
+        </section>
+
+        <!-- 02 ───────────────────────────────────────────────────────── -->
+        <section>
+            <div class="label">02 — What it is</div>
+            <h2>A verification service that proves activity, and never touches money</h2>
+
+            <p>
+                The service reads the chain, evaluates your rule, and signs a statement about
+                what it found. Your app decides what the reward is and pays it from its own
+                wallet. There is no smart contract, no custody, and no token in this design.
+            </p>
+
+            <figure>
+                <div class="plate">
+                    <pre class="mermaid">
+flowchart LR
+    A["Your app<br/>defines a rule"] -->|"verify(wallet, campaign)"| B["Verification<br/>service"]
+    B -->|reads| C["TON chain<br/>STON.fi events"]
+    B -->|"signed attestation<br/>+ evidence"| A
+    A -->|"pays out from<br/>its own wallet"| D["User"]
+          </pre>
+                </div>
+                <figcaption>Fig. 1 — Trust boundary: proof flows in, funds never do</figcaption>
+            </figure>
+        </section>
+
+        <!-- 03 ───────────────────────────────────────────────────────── -->
+        <section>
+            <div class="label">03 — How it works</div>
+            <h2>One call, and a proof you check yourself</h2>
+
+            <figure>
+                <div class="plate">
+                    <pre class="mermaid">
+sequenceDiagram
+    autonumber
+    participant U as User
+    participant A as Your backend
+    participant S as Verification service
+    participant T as TON / STON.fi
+
+    U->>A: taps "Claim"
+    A->>S: POST /v1/verify
+    S->>T: fetch account events
+    T-->>S: raw events
+
+    alt history incomplete or upstream down
+        S-->>A: 503 typed error (fails closed)
+        A-->>U: "Couldn't check right now"
+    else history complete
+        Note over S: decode, normalize, evaluate
+        alt rule satisfied
+            S->>S: sign attestation, record in audit log
+            S-->>A: eligible + attestation + evidence
+            A->>A: verify signature OFFLINE
+            A->>A: check wallet, campaign, nonce
+            A-->>U: reward granted
+        else rule not satisfied
+            S-->>A: not eligible + evidence
+            A-->>U: "You swapped 62 of the required 100 TON"
+        end
+    end
+          </pre>
+                </div>
+                <figcaption>Fig. 2 — Verification flow, including both failure paths</figcaption>
+            </figure>
+
+            <div class="callout">
+                <p>
+                    <strong>Step 9 is the one that matters.</strong> Your app checks the signature
+                    itself, against a public key it pinned at deploy time. A spoofed response, a
+                    hijacked DNS record, or a fully compromised verification service cannot mint
+                    rewards from your treasury.
+                </p>
+                <p>
+                    That is also why hosted and self-hosted have the same security story — you are
+                    never trusting a live response.
+                </p>
+            </div>
+
+            <h3>Failure is never a wrong answer</h3>
+            <p>
+                If a wallet's history cannot be resolved completely — upstream outage, rate limit,
+                or a history larger than the fetch cap — the service returns a typed
+                <code class="inline">503</code> rather than evaluating partial data. An
+                under-counted history produces a confident <em>"you don't qualify"</em> for
+                someone who did. A false negative is a support ticket; a false positive is a
+                payout that cannot be reversed.
+            </p>
+        </section>
+
+        <!-- 04 ───────────────────────────────────────────────────────── -->
+        <section>
+            <div class="label">04 — Using it</div>
+            <h2>Install, define, verify</h2>
+
+            <pre class="code"><span class="c">// npm install @ston-rewards/sdk</span>
+
+<span class="p">import</span> { StonRewards, swap, all, lpHold, verifyAttestation } <span class="p">from</span> <span class="s">"@ston-rewards/sdk"</span>;
+
+<span class="c">// 1 — Define a rule. Plain JSON underneath: store it, send it, hash it.</span>
+<span class="p">const</span> campaign = <span class="p">await</span> ston.<b>createCampaign</b>({
+  <span class="n">name</span>: <span class="s">"Swap 100 TON and hold LP for a week"</span>,
+  <span class="n">rule</span>: <b>all</b>(
+    <b>swap</b>({ <span class="n">minAmount</span>: 100_000_000_000n, <span class="n">token</span>: <span class="s">"TON"</span> }),
+    <b>lpHold</b>({ <span class="n">pool</span>: TON_USDT, <span class="n">minDuration</span>: <span class="s">"7d"</span> }),
+  ),
+  <span class="n">startsAt</span>: <span class="p">new</span> Date(),
+  <span class="n">endsAt</span>: <span class="p">new</span> Date(Date.now() + 30 * 86_400_000),
+});
+
+<span class="c">// 2 — Ask, from your backend, when the user claims.</span>
+<span class="p">const</span> result = <span class="p">await</span> ston.<b>verify</b>({ wallet, <span class="n">campaignId</span>: campaign.id });
+<span class="p">if</span> (!result.eligible) <span class="p">return</span> render(result.evidence);
+
+<span class="c">// 3 — Verify offline against a key you pinned, then reward.</span>
+<span class="p">const</span> check = <span class="p">await</span> <b>verifyAttestation</b>(result.attestation, PINNED_KEY);
+<span class="p">if</span> (!check.valid) <span class="p">return</span>;
+
+<span class="p">await</span> markNonceSpent(nonce);   <span class="c">// before paying, never after</span>
+<span class="p">await</span> awardPoints(userId, 100);</pre>
+
+            <h3>The rule language</h3>
+            <p>
+                Rules are composable condition trees, capped at three levels of nesting so
+                evaluation stays bounded and results stay explainable to the person reading them.
+            </p>
+
+            <div class="table-scroll">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Condition</th>
+                            <th>Fields</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>swap</td>
+                            <td><code class="inline">minAmount</code> · <code class="inline">minVolumeUsd</code> ·
+                                <code class="inline">token</code> · <code class="inline">pool</code> ·
+                                <code class="inline">count</code> · <code class="inline">window</code> ·
+                                <code class="inline">netVolume</code>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>lpAdd</td>
+                            <td><code class="inline">minLpAmount</code> · <code class="inline">minAmountUsd</code> ·
+                                <code class="inline">pool</code> · <code class="inline">count</code> ·
+                                <code class="inline">window</code>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>lpHold</td>
+                            <td><code class="inline">minDuration</code> <em>(required)</em> ·
+                                <code class="inline">minLpAmount</code> · <code class="inline">pool</code>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>all / any</td>
+                            <td>Combine any of the above, up to three levels deep</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <figure>
+                <div class="plate">
+                    <pre class="mermaid">
+flowchart TD
+    R{{"all"}} --> C1["swap<br/>minAmount: 100 TON"]
+    R --> A{{"any"}}
+    A --> C2["lpHold<br/>7d in TON/USDT"]
+    A --> C3["swap<br/>count: 5, window: 30d"]
+    C1 -.->|"142 TON across 3 txs"| E1["satisfied"]
+    C2 -.->|"held only 4d"| E2["not satisfied"]
+    C3 -.->|"7 swaps"| E3["satisfied"]
+          </pre>
+                </div>
+                <figcaption>Fig. 3 — A composite rule, and the evidence each leaf returns</figcaption>
+            </figure>
+
+            <h3>Evidence is the trust feature</h3>
+            <p>
+                Every evaluation returns evidence — <strong>on failure as well as success</strong>.
+                Showing gross volume beside net volume is what makes <em>"but I swapped way more
+                    than that"</em> answerable in a single screenshot.
+            </p>
+
+            <pre class="code">{
+  <span class="s">"kind"</span>: <span class="s">"swap"</span>,
+  <span class="s">"satisfied"</span>: <span class="n">false</span>,
+  <span class="s">"detail"</span>: <span class="s">"counted 62400000 of 100000000 token units"</span>,
+  <span class="s">"measured"</span>: {
+    <span class="s">"qualifyingSwaps"</span>: <span class="n">3</span>,
+    <span class="s">"volumeTokenUnits"</span>: <span class="s">"62400000"</span>,
+    <span class="s">"grossVolumeTokenUnits"</span>: <span class="s">"184000000"</span>,
+    <span class="s">"netVolume"</span>: <span class="n">1</span>
+  },
+  <span class="s">"txHashes"</span>: [<span class="s">"ae72f139…"</span>, <span class="s">"0a708b7d…"</span>, <span class="s">"af015ab6…"</span>]
+}</pre>
+
+            <p>
+                Evidence is byte-identical for identical inputs, and its hash is bound into the
+                signed attestation — so a disputed result can be re-derived offline, years later,
+                and checked against the signature.
+            </p>
+        </section>
+
+        <!-- 05 ───────────────────────────────────────────────────────── -->
+        <section>
+            <div class="label">05 — Anti-abuse</div>
+            <h2>Layered, configurable, and honest about the gap</h2>
+
+            <div class="table-scroll">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Attack</th>
+                            <th>Defence</th>
+                            <th>Default</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Wash trading</td>
+                            <td>Net volume: bought minus sold, per asset. A round trip nets to ~0</td>
+                            <td><span class="pill ok">On</span></td>
+                        </tr>
+                        <tr>
+                            <td>Double-counted events</td>
+                            <td>One on-chain event counts once, ever — dedup at decode plus a database constraint</td>
+                            <td><span class="pill ok">On</span></td>
+                        </tr>
+                        <tr>
+                            <td>Replayed proofs</td>
+                            <td>Single-use nonce and a one-hour expiry; the app records spent nonces</td>
+                            <td><span class="pill ok">On</span></td>
+                        </tr>
+                        <tr>
+                            <td>Double-tapped claims</td>
+                            <td>Server-derived idempotency key plus single-flight collapse</td>
+                            <td><span class="pill ok">On</span></td>
+                        </tr>
+                        <tr>
+                            <td>Rapid-fire farming</td>
+                            <td>Minimum interval between counted actions, applied before aggregation</td>
+                            <td><span class="pill part">Opt-in</span></td>
+                        </tr>
+                        <tr>
+                            <td>Whales draining a budget</td>
+                            <td>Maximum rewardable volume per wallet</td>
+                            <td><span class="pill part">Opt-in</span></td>
+                        </tr>
+                        <tr>
+                            <td>Disposable wallets</td>
+                            <td>Minimum wallet age floor</td>
+                            <td><span class="pill part">Opt-in</span></td>
+                        </tr>
+                        <tr>
+                            <td>Multi-wallet Sybil rings</td>
+                            <td><strong>Not solved.</strong> Bind rewards to a Telegram identity instead</td>
+                            <td><span class="pill no">Open</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout">
+                <p>
+                    The Sybil gap is stated plainly rather than buried. One reward per Telegram
+                    user id makes a ring cost one Telegram account per extra claim — which raises
+                    the price substantially without pretending to a solution. Graph heuristics come
+                    later, and will be described as heuristics.
+                </p>
+            </div>
+        </section>
+
+        <!-- 06 ───────────────────────────────────────────────────────── -->
+        <section>
+            <div class="label">06 — Evidence it works</div>
+            <h2>Measured against live mainnet, not a testnet fixture</h2>
+
+            <div class="metrics">
+                <div class="metric">
+                    <div class="n good">360</div>
+                    <div class="label l">Tests passing</div>
+                </div>
+                <div class="metric">
+                    <div class="n good">0%</div>
+                    <div class="label l">Undecodable actions</div>
+                </div>
+                <div class="metric">
+                    <div class="n">19/20</div>
+                    <div class="label l">Swaps pool-attributed</div>
+                </div>
+                <div class="metric">
+                    <div class="n">100→1</div>
+                    <div class="label l">Concurrent claims per fetch</div>
+                </div>
+                <div class="metric">
+                    <div class="n good">0</div>
+                    <div class="label l">Known vulnerabilities</div>
+                </div>
+            </div>
+
+            <p>
+                A real liquidity round trip, decoded from mainnet and paired into a closed
+                position by the CLI that ships with the repository:
+            </p>
+
+            <div class="terminal">
+                <span class="prompt">$</span> pnpm decode 0:83d606…fa03 --days 400 --usd<br><br>
+                LP_ADD &nbsp;&nbsp;&nbsp;&nbsp;lp=220021 &nbsp;pool=0:fc4c…9d7e<br>
+                LP_REMOVE &nbsp;lp=220021 &nbsp;pool=0:fc4c…9d7e &nbsp;7642096705 TON + 10056067 USDT
+                &nbsp;~$7686.43<br>
+                position: &nbsp;opened 07:22:59 → closed 07:25:02<br><br>
+                <span class="ok">2 actions, 0 undecodable (0.0%)</span>
+            </div>
+
+            <div class="table-scroll">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>What was measured</th>
+                            <th>Result</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Swap decoding across a live wallet's history</td>
+                            <td class="num">20/20 actions, 0% undecodable</td>
+                        </tr>
+                        <tr>
+                            <td>Pool attribution on those swaps</td>
+                            <td class="num">19/20; the 20th correctly refused</td>
+                        </tr>
+                        <tr>
+                            <td>Router-scoped pair ambiguity, full registry</td>
+                            <td class="num">0.28% of 47,572 pools</td>
+                        </tr>
+                        <tr>
+                            <td>Concurrent verifications → upstream fetches</td>
+                            <td class="num">100 → 1</td>
+                        </tr>
+                        <tr>
+                            <td>Signature checked by an independent implementation</td>
+                            <td class="num">Node crypto, not the signing library</td>
+                        </tr>
+                        <tr>
+                            <td>Evidence determinism across repeated runs</td>
+                            <td class="num">Byte-identical, 50 iterations</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- 07 ───────────────────────────────────────────────────────── -->
+        <section>
+            <div class="label">07 — Delivery</div>
+            <h2>Four phases, cut along risk rather than calendar</h2>
+
+            <p>
+                Each phase ends in something independently useful. Stop after phase two and what
+                exists is still a working open-source decoder and rule engine — not a half-built
+                service.
+            </p>
+
+            <div class="phases">
+                <div class="phase">
+                    <div class="no">01</div>
+                    <div>
+                        <h4>Truth layer</h4>
+                        <p>Chain data in, normalized STON.fi actions out. Carries all the decoding risk.</p>
+                    </div>
+                    <span class="pill ok">Verified on mainnet</span>
+                </div>
+                <div class="phase">
+                    <div class="no">02</div>
+                    <div>
+                        <h4>Logic layer</h4>
+                        <p>Rule DSL, evaluation, evidence and signed attestations. Pure functions, no IO.</p>
+                    </div>
+                    <span class="pill ok">Fully verified</span>
+                </div>
+                <div class="phase">
+                    <div class="no">03</div>
+                    <div>
+                        <h4>Service layer</h4>
+                        <p>API, persistence, auth, rate limits, observability and a one-command deploy.</p>
+                    </div>
+                    <span class="pill part">Logic verified</span>
+                </div>
+                <div class="phase">
+                    <div class="no">04</div>
+                    <div>
+                        <h4>Product layer</h4>
+                        <p>npm SDK, demo Mini App, reference payout example, documentation, security pass.</p>
+                    </div>
+                    <span class="pill part">SDK verified</span>
+                </div>
+            </div>
+
+            <p>
+                Phases three and four are code-complete. What remains unverified is the database
+                and cache adapters running against live infrastructure — the logic above those
+                adapters is tested against in-memory implementations, so what is pending is the
+                SQL and connection handling, not the reasoning.
+            </p>
+
+            <h3>Known limitations</h3>
+            <p>Tracked openly in the repository rather than discovered later by an integrator:</p>
+
+            <div class="table-scroll">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Limitation</th>
+                            <th>Consequence</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Fixture set below target</td>
+                            <td>Missing v2 routers, multi-hop routes, and a partial LP withdrawal</td>
+                        </tr>
+                        <tr>
+                            <td>USD uses the current rate, not the historical one</td>
+                            <td>USD rules are marketing-grade; token-unit rules are dispute-proof</td>
+                        </tr>
+                        <tr>
+                            <td>~0.3% of swaps cannot be attributed to a pool</td>
+                            <td>Pool-scoped rules will not match them — a deliberate refusal, not a bug</td>
+                        </tr>
+                        <tr>
+                            <td>LP token legs are best-effort</td>
+                            <td>Pool, LP units and timing are authoritative; the legs are evidence only</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- 08 ───────────────────────────────────────────────────────── -->
+        <section>
+            <div class="label">08 — Design decisions</div>
+            <h2>The choices a reviewer should interrogate</h2>
+
+            <details>
+                <summary>Why refuse rather than guess?</summary>
+                <p>
+                    Chain data reports swaps at router level, so a pool must be inferred from the
+                    token pair. When several pools share a pair, the swap is recorded
+                    <em>without</em> a pool rather than attributed to a likely one. A false negative
+                    is a support ticket; a false positive is a payout that cannot be clawed back.
+                    Every ambiguous case in this system resolves toward the former.
+                </p>
+            </details>
+
+            <details>
+                <summary>Why is the rules engine forbidden from doing any IO?</summary>
+                <p>
+                    Because a disputed eligibility answer has to be re-derivable. Evaluation takes
+                    an activity set and never fetches, never reads a clock, and never imports the IO
+                    packages — a CI test enforces all three. The same rule and activity therefore
+                    always produce byte-identical evidence.
+                </p>
+            </details>
+
+            <details>
+                <summary>Why is net volume counting the default?</summary>
+                <p>
+                    Gross volume is inflated by swapping back and forth at near-zero cost. Netting
+                    per asset makes a round trip worth roughly nothing, while a genuine one-way
+                    position still counts in full. Both figures appear in evidence, so the user can
+                    see exactly why the two differ.
+                </p>
+            </details>
+
+            <details>
+                <summary>Why is a negative result never signed?</summary>
+                <p>
+                    A signed "not eligible" would be a durable, transferable statement about a
+                    person's wallet, with no upside — and the caller already has the evidence
+                    explaining the failure.
+                </p>
+            </details>
+
+            <details>
+                <summary>Why no smart contract or custody in v1?</summary>
+                <p>
+                    Settlement is the integrating app's job. Keeping funds entirely out of this
+                    system means a compromise of the verification service cannot move anyone's
+                    money, and it removes the audit surface that would otherwise dominate the build.
+                    An on-chain settlement contract is a later, optional layer — not a prerequisite
+                    for the primitive to be useful.
+                </p>
+            </details>
+        </section>
+
+        <footer>
+            <span>TonAttest — proof-of-action infrastructure</span>
+            <span>Node · Browser · Telegram Mini App · Edge</span>
+        </footer>
+
+    </div>
+
+    <script type="module">
+        // Diagrams are authored as mermaid source in the markup so they stay
+        // editable as text rather than becoming opaque exported images.
+        import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+
+        mermaid.initialize({
+            startOnLoad: true,
+            securityLevel: "strict",
+            theme: "base",
+            fontFamily: '"DM Sans", system-ui, sans-serif',
+            themeVariables: {
+                primaryColor: "#eee9ff",
+                primaryTextColor: "#101014",
+                primaryBorderColor: "#7651e8",
+                lineColor: "#74747d",
+                secondaryColor: "#f7f6fb",
+                tertiaryColor: "#ffffff",
+                noteBkgColor: "#e2f6ed",
+                noteTextColor: "#16805c",
+                noteBorderColor: "#16805c"
+            }
+        });
+    </script>
+
+</body>
+
+</html>
