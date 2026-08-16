@@ -675,14 +675,14 @@ h2 {
 }
 
 .code {
-    background: linear-gradient(145deg, #22222ed9, #0d0d13d9);
+    background: linear-gradient(145deg, #121215d9, #111115);
     border: 1px solid #ffffff40;
     border-radius: 16px;
     position: relative;
     overflow: hidden;
-    -webkit-backdrop-filter: blur(14px) saturate(160%);
+    /* -webkit-backdrop-filter: blur(14px) saturate(160%); */
     backdrop-filter: blur(14px) saturate(160%);
-    box-shadow: 0 10px 30px #10101433, inset 0 1px 0 #ffffff40;
+    /* box-shadow: 0 10px 30px #10101433, inset 0 1px 0 #ffffff40; */
     color: #ddd;
     padding: 28px;
     font: 12px/2 var(--mono);
@@ -795,7 +795,7 @@ h2 {
 .pipeline {
     display: grid;
     grid-template-columns: repeat(6, 1fr);
-    margin-top: 34px
+    margin-top: 48px
 }
 
 .step {
@@ -811,7 +811,7 @@ h2 {
     right: -50%;
     width: 100%;
     height: 1px;
-    background: #383740
+    background: linear-gradient(90deg, #ffffff0a, #4a4757, #ffffff0a)
 }
 
 .num {
@@ -826,16 +826,23 @@ h2 {
     -webkit-backdrop-filter: blur(14px) saturate(160%);
     backdrop-filter: blur(14px) saturate(160%);
     box-shadow: 0 8px 20px #00000059, inset 0 1px 0 #ffffff40;
-    color: #b99cff;
+    color: #c9b3ff;
     display: grid;
     place-items: center;
-    font: 12px var(--mono)
+    font: 12px var(--mono);
+    transition: box-shadow .3s ease, border-color .3s ease
+}
+
+.step:hover .num {
+    border-color: #a786ff8f;
+    box-shadow: 0 8px 24px #7651e845, inset 0 1px 0 #ffffff59
 }
 
 .step b {
     display: block;
     font-size: 12px;
-    margin-top: 10px
+    letter-spacing: .04em;
+    margin-top: 14px
 }
 
 .step small {
@@ -852,17 +859,23 @@ h2 {
     border: 1px solid #ffffff40;
     border-radius: 16px;
     display: grid;
-    grid-template-columns: 1fr 190px;
-    gap: 20px;
-    padding: 26px;
+    grid-template-columns: 1fr 210px;
+    gap: 28px;
+    padding: 30px;
+    align-items: center;
     -webkit-backdrop-filter: blur(14px) saturate(160%);
     backdrop-filter: blur(14px) saturate(160%);
     box-shadow: 0 10px 30px #10101433, inset 0 1px 0 #ffffff40
 }
 
 .json {
-    font: 11px/1.9 var(--mono);
-    color: #ccc
+    font: 12px/2.1 var(--mono);
+    color: #d2d2d9;
+    overflow-x: auto
+}
+
+.json span {
+    color: #9bd18c
 }
 
 .json b {
@@ -870,15 +883,41 @@ h2 {
 }
 
 .verified {
-    border-radius: 12px;
-    background: linear-gradient(145deg, #d9f4e7d9, #bfe9d5d9);
-    border: 1px solid #ffffff59;
-    box-shadow: inset 0 1px 0 #ffffffab;
-    color: #167957;
+    border-radius: 14px;
+    background: linear-gradient(145deg, #1c4d3bd9, #12362ad9);
+    border: 1px solid #83dfb740;
+    box-shadow: 0 10px 30px #0a2b1f59, inset 0 1px 0 #83dfb740;
+    color: #a8e9c9;
+    display: grid;
+    justify-items: center;
+    align-content: center;
+    gap: 4px;
+    padding: 22px 16px;
+    text-align: center
+}
+
+.v-check {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
     display: grid;
     place-items: center;
+    background: #83dfb71f;
+    border: 1px solid #83dfb759;
+    color: #83dfb7;
+    font-size: 15px;
+    margin-bottom: 6px
+}
+
+.verified b {
     font: 12px var(--mono);
-    text-align: center
+    letter-spacing: .1em;
+    color: #d7f5e7
+}
+
+.verified small {
+    font-size: 11px;
+    color: #7fb79d
 }
 
 /* security */
@@ -953,17 +992,38 @@ h2 {
 /* stack + roadmap */
 .stack {
     display: flex;
-    gap: 7px;
+    gap: 10px;
     flex-wrap: wrap
 }
 
 .stack span {
-    background: #fff;
-    border: 1px solid #dedee0;
-    padding: 8px 10px;
-    border-radius: 5px;
+    background: linear-gradient(145deg, #33333fd9, #0d0d13d9);
+    border: 1px solid #ffffff40;
+    color: #fff;
+    padding: 11px 20px;
+    border-radius: 12px;
     font: 11px var(--mono);
-    color: #666
+    position: relative;
+    overflow: hidden;
+    -webkit-backdrop-filter: blur(14px) saturate(160%);
+    backdrop-filter: blur(14px) saturate(160%);
+    box-shadow: 0 8px 24px #1010142e, inset 0 1px 0 #ffffff40;
+    transition: transform .25s ease, box-shadow .25s ease, background .25s ease
+}
+
+.stack span:before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto;
+    height: 50%;
+    background: linear-gradient(#ffffff26, transparent);
+    pointer-events: none
+}
+
+.stack span:hover {
+    transform: translateY(-2px);
+    background: linear-gradient(145deg, #3d3d4be6, #16161ee6);
+    box-shadow: 0 14px 32px #10101440, inset 0 1px 0 #ffffff59
 }
 
 .road {
@@ -1234,5 +1294,99 @@ footer {
     .contact-grid,
     .field-row {
         grid-template-columns: 1fr
+    }
+}
+
+/* integrate */
+.integrate-wrap {
+    padding: 0
+}
+
+.integrate {
+    position: relative;
+    overflow: hidden;
+    background: #0a0a0e;
+    padding: 110px clamp(30px, 6vw, 130px);
+    text-align: center;
+    color: #fff
+}
+
+.rings {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+        radial-gradient(circle at 50% 50%, transparent 0 17%, #ffffff0f 17% 17.15%, transparent 17.15%),
+        radial-gradient(circle at 50% 50%, transparent 0 29%, #ffffff0d 29% 29.12%, transparent 29.12%),
+        radial-gradient(circle at 50% 50%, transparent 0 42%, #ffffff0a 42% 42.1%, transparent 42.1%),
+        radial-gradient(circle at 50% 50%, transparent 0 56%, #ffffff08 56% 56.09%, transparent 56.09%),
+        radial-gradient(circle at 50% 30%, #7651e824, transparent 60%)
+}
+
+.integrate-inner {
+    position: relative;
+    z-index: 1;
+    max-width: 640px;
+    margin: auto
+}
+
+.integrate .kicker {
+    color: #8a8a93
+}
+
+.integrate h2 {
+    margin: 14px 0 34px
+}
+
+.terminal {
+    text-align: left;
+    background: linear-gradient(145deg, #22222ed9, #0d0d13d9);
+    border: 1px solid #ffffff26;
+    border-radius: 16px;
+    padding: 26px 28px;
+    font: 13px/2.1 var(--mono);
+    color: #d6d6dd;
+    -webkit-backdrop-filter: blur(14px) saturate(160%);
+    backdrop-filter: blur(14px) saturate(160%);
+    box-shadow: 0 18px 45px #00000059, inset 0 1px 0 #ffffff26
+}
+
+.t-line.c,
+.t-line.dim {
+    color: #6f7079
+}
+
+.t-line.c {
+    margin-bottom: 12px
+}
+
+.t-line.ok {
+    color: #83dfb7;
+    margin-top: 12px
+}
+
+.terminal .prompt {
+    color: #83dfb7
+}
+
+.terminal .pkg {
+    color: #b596ff
+}
+
+.integrate p {
+    font-size: 15px;
+    line-height: 1.75;
+    color: #8f8f98;
+    margin: 30px auto 34px;
+    max-width: 560px
+}
+
+.integrate .btn {
+    display: inline-block
+}
+
+@media(max-width:850px) {
+    .integrate {
+        padding: 70px 30px
     }
 }

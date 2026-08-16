@@ -193,7 +193,11 @@
                         <span>"sha256:..."</span>,<br>&nbsp;&nbsp;issued_at: <span>1755300000</span>, expires_at:
                         <span>1755303600</span>,<br>&nbsp;&nbsp;nonce: <span>"..."</span><br>}
                     </div>
-                    <div class="verified">✓<br>ED25519<br>OFFLINE VERIFIABLE</div>
+                    <div class="verified">
+                        <span class="v-check">✓</span>
+                        <b>ED25519</b>
+                        <small>Offline verifiable</small>
+                    </div>
                 </div>
             </section>
 
@@ -277,6 +281,28 @@
                         <h3>Understand</h3>
                         <p>Attribution graphs, reputation signals and stronger Sybil heuristics.</p>
                     </article>
+                </div>
+            </section>
+
+            <section class="section reveal integrate-wrap">
+                <div class="integrate">
+                    <span class="rings" aria-hidden="true"></span>
+                    <div class="integrate-inner">
+                        <div class="kicker">Ship in an afternoon</div>
+                        <h2>Integrate TonAttest</h2>
+                        <div class="terminal">
+                            <div class="t-line c">// last verified: mainnet, EQB4…9xKt</div>
+                            <div class="t-line"><span class="prompt">$</span> npm install <span
+                                    class="pkg">@tonattest/sdk</span></div>
+                            <div class="t-line dim">+ @tonattest/sdk@0.1.0</div>
+                            <div class="t-line dim">added 3 packages, audited in 4s</div>
+                            <div class="t-line ok">✓ attestation verified offline</div>
+                        </div>
+                        <p>Define a rule, call verify, check the signature. Whether you run a Mini App, a game economy
+                            or a liquidity programme, the integration is the same three steps — and nothing custodial
+                            ever touches your users' funds.</p>
+                        <a class="btn primary" href="https://github.com" target="_blank">Read the docs</a>
+                    </div>
                 </div>
             </section>
 
