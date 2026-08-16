@@ -47,12 +47,61 @@
                 </div>
             </section>
 
-            <div class="trust-strip">
-                <div class="trust-item"><b>Non-custodial</b><span>Verification never moves funds</span></div>
-                <div class="trust-item"><b>Offline-verifiable</b><span>Ed25519 signed attestations</span></div>
-                <div class="trust-item"><b>Self-hostable</b><span>Open-source verification service</span></div>
-                <div class="trust-item"><b>MIT licensed</b><span>Built for TON developers</span></div>
-            </div>
+            <section class="section reveal" id="essentials">
+                <div class="section-head">
+                    <div class="kicker">The essentials</div>
+                    <h2>What is TonAttest?</h2>
+                </div>
+
+                <div class="converge">
+                    <div class="conv-col left">
+                        <span>Swaps</span>
+                        <span>Liquidity added</span>
+                        <span>Positions held</span>
+                    </div>
+
+                    <div class="conv-core">
+                        <svg class="conv-lines" viewBox="0 0 900 420" preserveAspectRatio="none" aria-hidden="true">
+                            <g fill="none" stroke="url(#cl)" stroke-width="1.4">
+                                <path d="M0 60 C 240 60 300 210 450 210" />
+                                <path d="M0 210 L 450 210" />
+                                <path d="M0 360 C 240 360 300 210 450 210" />
+                                <path d="M900 60 C 660 60 600 210 450 210" />
+                                <path d="M900 210 L 450 210" />
+                                <path d="M900 360 C 660 360 600 210 450 210" />
+                            </g>
+                            <defs>
+                                <linearGradient id="cl" x1="0" y1="0" x2="1" y2="0">
+                                    <stop offset="0" stop-color="#7651e800" />
+                                    <stop offset=".5" stop-color="#7651e859" />
+                                    <stop offset="1" stop-color="#7651e800" />
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                        <div class="conv-tile" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" width="34" height="34">
+                                <path d="M5 12.5 10 17.5 19 7" fill="none" stroke="#fff" stroke-width="2.6"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </div>
+                    </div>
+
+                    <div class="conv-col right">
+                        <span>Signed attestation</span>
+                        <span>Evidence returned</span>
+                        <span>Your app pays out</span>
+                    </div>
+                </div>
+
+                <div class="essentials-foot">
+                    <p>TonAttest reads a wallet's real STON.fi history and checks it against a rule you define in code —
+                        swap amounts, pools, tokens, and how long liquidity actually stayed. Nothing is self-reported by
+                        the user.</p>
+                    <p>The result is an Ed25519 attestation your backend verifies offline against a pinned key. We never
+                        hold funds, issue a token, or touch the payout — eligibility is the entire product.</p>
+                    <a class="nav-cta" href="#architecture">See how it works</a>
+                </div>
+            </section>
 
             <section class="section reveal" id="architecture">
                 <div class="section-head">
