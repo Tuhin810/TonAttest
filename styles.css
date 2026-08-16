@@ -139,7 +139,7 @@ nav {
 .hero {
     background: #fff;
     min-height: 555px;
-    padding: 70px clamp(30px, 6vw, 130px) 72px;
+    padding: 0 clamp(30px, 6vw, 130px);
     display: grid;
     grid-template-columns: 1fr .9fr;
     gap: 50px;
@@ -243,17 +243,17 @@ h1 span {
 }
 
 .hero-art {
-    height: 540px;
+    height: 620px;
     position: relative;
     display: grid;
     place-items: center;
-    perspective: 1300px
+    perspective: 1500px
 }
 
 .object {
     position: relative;
-    width: 420px;
-    height: 420px;
+    width: 500px;
+    height: 500px;
     display: grid;
     place-items: center
 }
@@ -270,8 +270,8 @@ h1 span {
 
 .object .stack {
     position: relative;
-    width: 290px;
-    height: 290px;
+    width: 350px;
+    height: 350px;
     transform-style: preserve-3d;
     transform: rotateX(58deg) rotateZ(45deg)
 }
@@ -280,7 +280,7 @@ h1 span {
     position: absolute;
     inset: 0;
     margin: auto;
-    border-radius: 28px;
+    border-radius: 34px;
     border: 1px solid #ffffffa6;
     background: linear-gradient(145deg, #c9b6ff6b 0%, #8f6ffc73 45%, #6a45df80 100%);
     -webkit-backdrop-filter: blur(22px) saturate(200%);
@@ -314,36 +314,36 @@ h1 span {
 .object .slab:nth-child(1) {
     --z: 0px;
     --d: 0s;
-    width: 290px;
-    height: 290px
+    width: 350px;
+    height: 350px
 }
 
 .object .slab:nth-child(2) {
-    --z: 33px;
+    --z: 40px;
     --d: .35s;
-    width: 252px;
-    height: 252px
+    width: 304px;
+    height: 304px
 }
 
 .object .slab:nth-child(3) {
-    --z: 66px;
+    --z: 80px;
     --d: .7s;
-    width: 212px;
-    height: 212px
+    width: 256px;
+    height: 256px
 }
 
 .object .slab:nth-child(4) {
-    --z: 99px;
+    --z: 120px;
     --d: 1.05s;
-    width: 166px;
-    height: 166px
+    width: 200px;
+    height: 200px
 }
 
 .object .slab:nth-child(5) {
-    --z: 132px;
+    --z: 160px;
     --d: 1.4s;
-    width: 116px;
-    height: 116px;
+    width: 140px;
+    height: 140px;
     background: linear-gradient(145deg, #e6ddff8f, #a786ff96);
     border-color: #ffffffd9
 }
@@ -1060,7 +1060,7 @@ footer {
 
     .hero {
         grid-template-columns: 1fr;
-        padding: 50px 30px
+        padding: 0 30px
     }
 
     .trust-strip {
