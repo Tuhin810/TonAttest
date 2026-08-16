@@ -65,18 +65,19 @@ nav {
 .logo {
     display: flex;
     align-items: center;
-    gap: 8px;
-    font-size: 18px;
+    gap: 10px;
+    font-size: 19px;
     font-weight: 700;
     letter-spacing: -.045em
 }
 
 .logo-mark {
-    width: 26px;
-    height: 26px;
-    border-radius: 7px;
+    width: 48px;
+    height: 48px;
+    border-radius: 9px;
     object-fit: contain;
-    display: block
+    display: block;
+    flex-shrink: 0
 }
 
 .links {
