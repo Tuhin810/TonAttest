@@ -1,6 +1,6 @@
-# STON Rewards SDK — Architecture & 4-Phase Production Plan
+# TonAttest SDK — Architecture & 4-Phase Production Plan
 
-**Companion to:** `ston-rewards-technical-design.md` (v0.1)
+**Companion to:** `tonattest-technical-design.md` (v0.1)
 **Status:** build plan
 **Goal:** four sequential phases, each ending in something deployable, that together produce a production-ready v1 (SDK + verification service + demo Mini App).
 
@@ -28,7 +28,7 @@ Each phase is independently useful. If funding or time stops after Phase 2, what
 ```
 ┌────────────────────────────────────────────────────────────┐
 │ Consumer                                                    │
-│  Mini App / dApp / bot   ──► @ston-rewards/sdk (npm)        │
+│  Mini App / dApp / bot   ──► @tonattest/sdk (npm)        │
 │                                 │                           │
 │                          verifyAttestation()  ← offline,    │
 │                                 │                no network │
@@ -172,8 +172,8 @@ If multi-hop or Omniston swaps can't be attributed to a single pool reliably, na
 **Objective:** something a stranger can adopt in 15 minutes without talking to you.
 
 ### Scope
-- `@ston-rewards/sdk` on npm, MIT, tsup dual ESM/CJS + `.d.ts`, working in Node, browsers/Mini Apps, and edge runtimes. Zero heavy deps in the offline-verify path.
-- `StonRewards.verifyAttestation(attestation, publicKey)` — pure, no network, no Node built-ins, so it runs anywhere.
+- `@tonattest/sdk` on npm, MIT, tsup dual ESM/CJS + `.d.ts`, working in Node, browsers/Mini Apps, and edge runtimes. Zero heavy deps in the offline-verify path.
+- `TonAttest.verifyAttestation(attestation, publicKey)` — pure, no network, no Node built-ins, so it runs anywhere.
 - Typed rule builder mirroring Phase 2's DSL with full inference.
 - Error taxonomy: typed error classes, retryable vs. terminal clearly marked.
 - Demo Telegram Mini App: connect wallet (TON Connect) → swap on STON.fi → claim → verify → points awarded, with the evidence panel shown to the user (the evidence view is the demo's actual selling point).

@@ -1,0 +1,20 @@
+{
+  "name": "@tonattest/cli",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "tonattest": "./dist/decode.js"
+  },
+  "scripts": {
+    "build": "tsup src/decode.ts --format esm --clean",
+    "typecheck": "tsc --noEmit",
+    "decode": "node --experimental-strip-types src/decode.ts"
+  },
+  "dependencies": {
+    "@tonattest/core-types": "workspace:*",
+    "@tonattest/data-provider": "workspace:*",
+    "@tonattest/decoder": "workspace:*",
+    "@tonattest/activity": "workspace:*"
+  }
+}

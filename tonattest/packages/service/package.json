@@ -1,0 +1,28 @@
+{
+  "name": "@tonattest/service",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "scripts": {
+    "build": "tsup src/index.ts src/cli/migrate.ts --format esm --clean",
+    "typecheck": "tsc --noEmit",
+    "start": "node --experimental-strip-types src/index.ts",
+    "migrate": "node --experimental-strip-types src/cli/migrate.ts",
+    "provision": "node --experimental-strip-types src/cli/provision.ts"
+  },
+  "dependencies": {
+    "@tonattest/activity": "workspace:*",
+    "@tonattest/attest": "workspace:*",
+    "@tonattest/core-types": "workspace:*",
+    "@tonattest/data-provider": "workspace:*",
+    "@tonattest/decoder": "workspace:*",
+    "@tonattest/rules": "workspace:*",
+    "fastify": "^5.2.0",
+    "ioredis": "^5.4.2",
+    "pg": "^8.13.1"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.11.10"
+  }
+}

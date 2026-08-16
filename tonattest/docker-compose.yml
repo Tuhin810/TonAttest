@@ -1,0 +1,56 @@
+# One-command local stack: API + Postgres + Redis.
+#
+#   cp .env.example .env      # fill in MASTER_KEY
+#   docker compose up --build
+#   docker compose run --rm api pnpm --filter @tonattest/service migrate
+#   docker compose run --rm api pnpm --filter @tonattest/service provision "My App"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ston
+      POSTGRES_PASSWORD: ston
+      POSTGRES_DB: tonattest
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      # The API waits for this rather than crash-looping on startup.
+      test: ["CMD-SHELL", "pg_isready -U ston -d tonattest"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "no"]
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api:
+    build: .
+    environment:
+      DATABASE_URL: postgres://ston:ston@postgres:5432/tonattest?sslmode=disable
+      REDIS_URL: redis://redis:6379
+      MASTER_KEY: ${MASTER_KEY:?set MASTER_KEY in .env — generate with: openssl rand -hex 32}
+      TONAPI_KEY: ${TONAPI_KEY:-}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      PORT: "8080"
+    ports:
+      - "${PORT:-8080}:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  postgres-data:

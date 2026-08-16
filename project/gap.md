@@ -1,4 +1,4 @@
-# STON Rewards — Gaps
+# TonAttest — Gaps
 
 **Scope:** open gaps only. Phase 1 (truth layer).
 **Last updated:** 2026-08-17.

@@ -1,4 +1,4 @@
-# STON Rewards SDK — Technical Design Document
+# TonAttest SDK — Technical Design Document
 
 **Version:** 0.1 (draft)
 **Author:** Tuhin
@@ -42,7 +42,7 @@ Quest platforms (TaskOn, Growthly, etc.) solve the *campaign website* version of
 │    TON app       │  Mini App / dApp / bot
 │  (customer code) │
 └────────┬─────────┘
-         │ @ston-rewards SDK (npm)
+         │ @tonattest SDK (npm)
          ▼
 ┌──────────────────────────────────┐
 │      Verification service        │  Node.js (Fastify), self-hostable
@@ -209,14 +209,14 @@ Auth: `Authorization: Bearer <api_key>` per project. Rate limits per project via
 ### SDK surface
 
 ```typescript
-const ston = new StonRewards({ apiKey, baseUrl? });
+const ston = new TonAttest({ apiKey, baseUrl? });
 
 const campaign = await ston.createCampaign({ name, rule, startsAt, endsAt });
 const result   = await ston.verify({ wallet, campaignId });
 // result: { eligible, attestation?, evidence }
 
 // Offline verification helper (no network):
-StonRewards.verifyAttestation(attestation, publicKey); // → boolean
+TonAttest.verifyAttestation(attestation, publicKey); // → boolean
 ```
 
 ## 11. Anti-abuse (v1, rule-based)
