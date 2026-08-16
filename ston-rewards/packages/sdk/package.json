@@ -1,0 +1,28 @@
+{
+  "name": "@ston-rewards/sdk",
+  "version": "0.1.0",
+  "description": "Composable, verifiable reward rules over STON.fi activity",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": ["dist", "README.md"],
+  "sideEffects": false,
+  "keywords": ["ton", "stonfi", "rewards", "attestation", "telegram-mini-app"],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm,cjs --dts --clean --treeshake",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@ston-rewards/attest": "workspace:*",
+    "@ston-rewards/rules": "workspace:*"
+  }
+}

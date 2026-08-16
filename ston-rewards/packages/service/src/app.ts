@@ -36,10 +36,28 @@ export function buildApp(options: AppOptions): FastifyInstance {
     // Request ids make a single user's failing claim traceable across logs.
     genReqId: () => newId("req"),
     disableRequestLogging: false,
+    ajv: {
+      customOptions: {
+        // Fastify strips unknown body fields by default. For this API that is
+        // the wrong default: a mistyped `limits` or a stray field means a
+        // campaign silently running without the protection its operator
+        // believes it has. Reject instead.
+        removeAdditional: false,
+        allErrors: true,
+      },
+    },
   });
 
   app.setErrorHandler((error, request, reply) => {
-    const api = toApiError(error);
+    // Schema validation failures arrive as Fastify errors, not domain errors.
+    // Mapping them by hand keeps the response shape identical to every other
+    // failure, so a client has exactly one error format to handle.
+    const api = isValidationError(error)
+      ? ApiError.badRequest(
+          `Request body failed validation: ${error.message}`,
+          error.validation,
+        )
+      : toApiError(error);
 
     // A 5xx is this service's fault and gets the full original logged; a 4xx
     // is the caller's and does not need to page anyone.
@@ -82,6 +100,19 @@ export function buildApp(options: AppOptions): FastifyInstance {
   });
 
   return app;
+}
+
+interface ValidationError extends Error {
+  validation: unknown;
+}
+
+function isValidationError(error: unknown): error is ValidationError {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "validation" in error &&
+    (error as { validation: unknown }).validation !== undefined
+  );
 }
 
 function projectOf(request: FastifyRequest): Project {

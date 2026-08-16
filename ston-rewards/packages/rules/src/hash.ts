@@ -1,4 +1,5 @@
-import { createHash } from "node:crypto";
+import { sha256 } from "@noble/hashes/sha2";
+import { utf8ToBytes } from "@noble/hashes/utils";
 import type { Rule } from "./types.js";
 
 /**
@@ -64,12 +65,21 @@ function canonicalString(value: string): string {
   return JSON.stringify(value);
 }
 
-/** `sha256:<hex>` over the rule's canonical form. */
+/**
+ * `sha256:<hex>` over the rule's canonical form.
+ *
+ * Hashing comes from `@noble/hashes` rather than `node:crypto` so that this
+ * whole path stays runtime-agnostic: the SDK ships the same rule builder and
+ * offline attestation check to Node, browsers, Telegram Mini Apps, and edge
+ * runtimes, and a single Node built-in anywhere in the graph would break the
+ * last three.
+ */
 export function ruleHash(rule: Rule): string {
-  return `sha256:${createHash("sha256").update(canonicalize(rule), "utf8").digest("hex")}`;
+  return contentHash(rule);
 }
 
 /** `sha256:<hex>` over any canonicalizable value — used for evidence hashes. */
 export function contentHash(value: unknown): string {
-  return `sha256:${createHash("sha256").update(canonicalize(value), "utf8").digest("hex")}`;
+  const digest = sha256(utf8ToBytes(canonicalize(value)));
+  return `sha256:${Array.from(digest, (b) => b.toString(16).padStart(2, "0")).join("")}`;
 }

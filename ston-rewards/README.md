@@ -4,7 +4,7 @@ Composable, programmable reward rules over verified STON.fi activity.
 See `../project/ston-rewards-technical-design.md` for the design and
 `../project/ston-rewards-build-phases.md` for the phase plan.
 
-## Status — Phases 1 and 2 complete
+## Status — Phases 1–4 complete
 
 | Piece | State |
 |---|---|
@@ -24,9 +24,29 @@ See `../project/ston-rewards-technical-design.md` for the design and
 | Anti-abuse: net volume, caps, cooldown, wallet age | done, tested |
 | RFC 8785 canonical JSON + rule hashing | done, tested |
 | Ed25519 attestations, offline verification | done, cross-verified with Node crypto |
+| **Phase 3** | |
+| Fastify API, schema-validated | done, tested |
+| Auth: scrypt-hashed API keys, per-project rate limits | done, tested |
+| Idempotency: one attestation per claim | done, tested |
+| Single-flight: 100 concurrent verifies → 1 fetch | done, tested |
+| Fail-closed on provider outage or truncation | done, tested |
+| Signing keys encrypted at rest, rotation-ready | done, tested |
+| Postgres schema + migrations | written, **not yet run against a live database** |
+| Redis cache + rate limiter | written, **not yet run against a live Redis** |
+| Health, readiness, Prometheus metrics | done, tested |
+| Docker + compose stack | written, **not yet built** |
+| **Phase 4** | |
+| `@ston-rewards/sdk` — dual ESM/CJS, typed, zero Node built-ins | done, tested |
+| Typed rule builder + local validation | done, tested |
+| Error taxonomy with retryable/terminal split | done, tested |
+| Demo Telegram Mini App with evidence panel | done, **not yet run against a live service** |
+| Jetton payout reference example | done, dry-run by design |
+| Docs: quickstart, rules, anti-abuse, spec, self-hosting, threat model | done |
+| Dependency audit | clean (`pnpm audit --prod`) |
 
-265 tests green, including golden mainnet fixtures and a full
-chain-data-to-signed-attestation integration test. `pnpm test`.
+360 tests green, including golden mainnet fixtures, a full
+chain-data-to-signed-attestation integration test, and the service's
+concurrency and fail-closed suites. `pnpm test`.
 
 ### Verified against mainnet
 
@@ -66,6 +86,11 @@ packages/decoder/       raw events -> normalized actions             (pure)
 packages/activity/      resolver + USD rates; fails closed on partial data
 packages/rules/         DSL, validation, evaluation, evidence          (pure)
 packages/attest/        canonical JSON, Ed25519 sign/verify            (pure)
+packages/service/       Fastify API, persistence, auth, observability
+packages/sdk/           public npm client + offline verification      (portable)
+apps/demo-miniapp/      Telegram Mini App demo
+apps/examples/          jetton-payout reference integration
+docs/                   quickstart, rules, anti-abuse, spec, security
 apps/cli/               `pnpm decode <wallet>` — Phase 1 exit criterion
 ```
 
@@ -86,6 +111,18 @@ pnpm decode <wallet> [--days 30] [--limit 1000] [--usd] [--json]
 ```
 
 Set `TONAPI_KEY` to raise the rate limit.
+
+## Running the service
+
+```bash
+cp .env.example .env    # fill DATABASE_URL, REDIS_URL, MASTER_KEY
+pnpm --filter @ston-rewards/service migrate
+pnpm --filter @ston-rewards/service provision "My Mini App"
+pnpm --filter @ston-rewards/service start
+```
+
+See `packages/service/README.md` for the API surface and the guarantees that
+layer adds.
 
 ## Writing a rule
 

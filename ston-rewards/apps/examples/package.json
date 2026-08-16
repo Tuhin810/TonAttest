@@ -1,0 +1,13 @@
+{
+  "name": "@ston-rewards/examples",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "jetton-payout": "node --experimental-strip-types src/jetton-payout.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@ston-rewards/sdk": "workspace:*"
+  }
+}

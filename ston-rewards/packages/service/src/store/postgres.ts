@@ -242,7 +242,7 @@ export class PostgresStore implements Store {
   }
 }
 
-function serializeLimits(limits: Record<string, unknown>): Record<string, unknown> {
+function serializeLimits(limits: object): Record<string, unknown> {
   // bigint has no JSON representation; thresholds are stored as strings.
   return Object.fromEntries(
     Object.entries(limits).map(([k, v]) => [k, typeof v === "bigint" ? v.toString() : v]),
