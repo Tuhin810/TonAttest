@@ -369,7 +369,7 @@ alone.
 ## Self-hosting
 
 ```bash
-git clone <repo> && cd tonattest
+git clone https://github.com/Tuhin810/TonAttest.git && cd tonattest
 cp .env.example .env
 echo "MASTER_KEY=$(openssl rand -hex 32)" >> .env
 

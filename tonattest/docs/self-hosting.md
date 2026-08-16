@@ -13,7 +13,7 @@ uptime, and offline-verifiable attestations mean you do not have to.
 ## Docker
 
 ```bash
-git clone <repo> && cd tonattest
+git clone https://github.com/Tuhin810/TonAttest.git && cd tonattest
 cp .env.example .env
 
 # MASTER_KEY is the one value you must generate yourself.
