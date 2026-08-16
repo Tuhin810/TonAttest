@@ -268,16 +268,15 @@ h1 span {
     pointer-events: none
 }
 
-.stack {
+.object .stack {
     position: relative;
     width: 290px;
     height: 290px;
     transform-style: preserve-3d;
-    transform: rotateX(58deg) rotateZ(45deg);
-    animation: float 6s ease-in-out infinite
+    transform: rotateX(58deg) rotateZ(45deg)
 }
 
-.slab {
+.object .slab {
     position: absolute;
     inset: 0;
     margin: auto;
@@ -287,10 +286,13 @@ h1 span {
     -webkit-backdrop-filter: blur(22px) saturate(200%);
     backdrop-filter: blur(22px) saturate(200%);
     box-shadow: 0 18px 40px #4e2a9b33, inset 0 1px 0 #ffffffd9, inset 0 -1px 0 #ffffff59, inset 0 0 40px #ffffff2e;
-    overflow: hidden
+    overflow: hidden;
+    transform: translateZ(var(--z));
+    animation: drift 5.6s ease-in-out infinite;
+    animation-delay: var(--d)
 }
 
-.slab:before {
+.object .slab:before {
     content: "";
     position: absolute;
     inset: 0 0 auto;
@@ -299,7 +301,7 @@ h1 span {
     pointer-events: none
 }
 
-.slab:after {
+.object .slab:after {
     content: "";
     position: absolute;
     inset: -60% -20% auto;
@@ -309,47 +311,52 @@ h1 span {
     pointer-events: none
 }
 
-.slab:nth-child(1) {
+.object .slab:nth-child(1) {
+    --z: 0px;
+    --d: 0s;
     width: 290px;
-    height: 290px;
-    transform: translateZ(0)
+    height: 290px
 }
 
-.slab:nth-child(2) {
+.object .slab:nth-child(2) {
+    --z: 33px;
+    --d: .35s;
     width: 252px;
-    height: 252px;
-    transform: translateZ(33px)
+    height: 252px
 }
 
-.slab:nth-child(3) {
+.object .slab:nth-child(3) {
+    --z: 66px;
+    --d: .7s;
     width: 212px;
-    height: 212px;
-    transform: translateZ(66px)
+    height: 212px
 }
 
-.slab:nth-child(4) {
+.object .slab:nth-child(4) {
+    --z: 99px;
+    --d: 1.05s;
     width: 166px;
-    height: 166px;
-    transform: translateZ(99px)
+    height: 166px
 }
 
-.slab:nth-child(5) {
+.object .slab:nth-child(5) {
+    --z: 132px;
+    --d: 1.4s;
     width: 116px;
     height: 116px;
-    transform: translateZ(132px);
     background: linear-gradient(145deg, #e6ddff8f, #a786ff96);
     border-color: #ffffffd9
 }
 
-@keyframes float {
+@keyframes drift {
 
     0%,
     100% {
-        transform: rotateX(58deg) rotateZ(45deg) translateY(0)
+        transform: translateZ(var(--z))
     }
 
     50% {
-        transform: rotateX(58deg) rotateZ(45deg) translateY(-16px)
+        transform: translateZ(calc(var(--z) + 46px))
     }
 }
 
@@ -369,7 +376,7 @@ h1 span {
 
 @media(prefers-reduced-motion:reduce) {
 
-    .stack,
+    .object .slab,
     .object .glow {
         animation: none
     }
