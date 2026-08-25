@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="assets/logo.png" alt="" width="72" height="72">
+<img src="assets/logo.png" alt="" width="122" height="122">
 
 # TonAttest
 
