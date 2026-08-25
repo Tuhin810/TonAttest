@@ -11,6 +11,7 @@ Take any fact about the chain — a wallet satisfied a reward rule, an asset was
 flagged as malicious — and turn it into a proof anyone can check themselves,
 without trusting a live server.
 
+[![docs](https://img.shields.io/badge/docs-gitbook-7651e8?style=flat-square)](https://kryvvo.gitbook.io/kryvvo-docs)
 [![tests](https://img.shields.io/badge/tests-360%20passing-16805c?style=flat-square)](#evidence-it-works)
 [![audit](https://img.shields.io/badge/audit-0%20vulnerabilities-16805c?style=flat-square)](tonattest/docs/security.md)
 [![license](https://img.shields.io/badge/license-MIT-7651e8?style=flat-square)](#license)
@@ -20,7 +21,9 @@ without trusting a live server.
 npm install @tonattest/sdk
 ```
 
-[**Quickstart**](tonattest/docs/quickstart.md) · [Rule cookbook](tonattest/docs/rules.md) · [Anti-abuse](tonattest/docs/anti-abuse.md) · [Attestation spec](tonattest/docs/attestation-spec.md) · [Self-hosting](tonattest/docs/self-hosting.md) · [Threat model](tonattest/docs/security.md)
+[**📖 Full documentation (GitBook)**](https://kryvvo.gitbook.io/kryvvo-docs)
+
+[Quickstart](tonattest/docs/quickstart.md) · [Rule cookbook](tonattest/docs/rules.md) · [Anti-abuse](tonattest/docs/anti-abuse.md) · [Attestation spec](tonattest/docs/attestation-spec.md) · [Self-hosting](tonattest/docs/self-hosting.md) · [Threat model](tonattest/docs/security.md)
 
 </div>
 
