@@ -6,9 +6,10 @@
 
 ### Don't trust the claim. Verify it.
 
-**Proof-of-action infrastructure for TON.**
-Define a reward rule in your own code. Ask whether a wallet satisfies it.
-Get back a signed, offline-verifiable proof — and the evidence behind the answer.
+**A signed, offline-verifiable attestation layer for TON.**
+Take any fact about the chain — a wallet satisfied a reward rule, an asset was
+flagged as malicious — and turn it into a proof anyone can check themselves,
+without trusting a live server.
 
 [![tests](https://img.shields.io/badge/tests-360%20passing-16805c?style=flat-square)](#evidence-it-works)
 [![audit](https://img.shields.io/badge/audit-0%20vulnerabilities-16805c?style=flat-square)](tonattest/docs/security.md)
@@ -22,6 +23,23 @@ npm install @tonattest/sdk
 [**Quickstart**](tonattest/docs/quickstart.md) · [Rule cookbook](tonattest/docs/rules.md) · [Anti-abuse](tonattest/docs/anti-abuse.md) · [Attestation spec](tonattest/docs/attestation-spec.md) · [Self-hosting](tonattest/docs/self-hosting.md) · [Threat model](tonattest/docs/security.md)
 
 </div>
+
+## Two things, one primitive
+
+TonAttest signs facts about the TON chain so anyone can verify them offline,
+without trusting a live server. Everything else in this repo is one of two
+applications of that single mechanism.
+
+| | **Reward verification** | **Asset trust layer** |
+|---|---|---|
+| The fact signed | *"wallet X satisfied rule Y"* | *"asset X was flagged Z, by source W"* |
+| Who asks | Your app, checking a claim | Any wallet, bot, or explorer |
+| Status | ✅ **Built.** 360 tests, verified on live mainnet | 🟡 **Proposed.** Requested by STON.fi — [full write-up](project/grant-reapplication-trust-layer.md) |
+| Try it | `npm install @tonattest/sdk` | [Phase 5–8 build plan](#application-2--asset-trust-layer-proposed) |
+
+Same signer. Same canonical JSON. Same `verifyAttestation()` running entirely
+offline. The only thing that changes between the two is **what fact is being
+attested** — a reward rule today, an asset's trust status next.
 
 ---
 
@@ -54,6 +72,8 @@ server-side, consumed programmatically.
 
 ## What TonAttest is
 
+The same mechanism either application runs on: TonAttest reads a fact, signs it, and hands back a proof your app checks itself.
+
 ```mermaid
 flowchart LR
     A["Your app<br/><i>defines a rule</i>"] -->|"verify(wallet, campaign)"| B["TonAttest"]
@@ -72,6 +92,101 @@ flowchart LR
 > Your app decides what the reward is and pays it from its own wallet.
 
 ---
+
+## Application 2 — Asset trust layer `proposed`
+
+**Not yet built — this is the plan, not a claim.** Raised directly by STON.fi
+on a grant discovery call: could the same attestation mechanism that verifies
+reward claims also make token-safety data — honeypots, scams, blacklists —
+readable by every wallet and bot in the ecosystem, not just STON.fi's own UI?
+Full write-up: [project/grant-reapplication-trust-layer.md](project/grant-reapplication-trust-layer.md).
+
+Right now STON.fi flags malicious tokens — honeypots, scams, blacklisted
+contracts — but that data lives **only in STON.fi's own UI.** No wallet,
+trading bot, or explorer in the TON ecosystem can read it. Each one either
+builds its own detection or has none.
+
+That's not a detection problem — good detection already exists. **Esprito
+Protocol's TSA** ([github.com/espritoxyz/tsa](https://github.com/espritoxyz/tsa))
+does genuinely sophisticated static analysis: it reads compiled contract
+bytecode and uses *symbolic execution* — exploring every possible code path
+with placeholder values — to catch honeypot patterns and TVM-level bugs. It's
+open source and it works. **What's missing is a portable, verifiable way to
+publish and consume a finding, from any source, across the ecosystem.**
+
+That's a distribution problem, and distribution is exactly what an
+attestation is for.
+
+```mermaid
+flowchart LR
+    D["A finding<br/><i>STON.fi, Esprito,<br/>or any source</i>"] -->|"signed"| T["TonAttest"]
+    T -->|"GET /v1/assets/:addr/flags"| W["Any wallet"]
+    T -->|"same endpoint"| B["Any trading bot"]
+    T -->|"same endpoint"| E["Any explorer"]
+
+    style D fill:#4a4840,color:#fff,stroke:none
+    style T fill:#7651e8,color:#fff,stroke:none
+    style W fill:#16805c,color:#fff,stroke:none
+    style B fill:#16805c,color:#fff,stroke:none
+    style E fill:#16805c,color:#fff,stroke:none
+```
+
+### The same primitive, a second fact shape
+
+The signer, the canonicalization, and offline verification are **already
+built and already proven** — this reuses them without modification. Only the
+*subject* of the attestation changes:
+
+```json
+{
+  "v": 1,
+  "subject": "asset",
+  "address": "0:8cdc1d76…",
+  "flag": "honeypot",
+  "severity": "high",
+  "source": "stonfi",
+  "issued_at": 1755300000,
+  "revoked_at": null
+}
+```
+
+Same Ed25519 signature. Same `verifyAttestation()`. Same "check it yourself,
+offline, no live trust required" guarantee that already exists for campaigns
+— just pointed at a different kind of fact.
+
+### What it makes possible
+
+| Consumer | What they get, without building anything themselves |
+|---|---|
+| A wallet (Tonkeeper, MyTonWallet, …) | A warning before a user swaps into a flagged token |
+| A trading bot | An automatic refusal to route through a flagged asset |
+| STON.fi | Its existing flags become portable and citable, correctly attributed, instead of trapped in one UI |
+| Esprito (or any detector) | Findings become distributable without duplicating anyone's detection engine |
+
+**What this is not:** a second honeypot detector. Esprito already built that
+— symbolic execution over TVM bytecode is a real specialty, and rebuilding it
+would be wasted effort and a needless collision with an existing STON.fi
+partner. This is the layer that makes *any* detector's output portable.
+
+### Phase 5–8 — the build plan
+
+| Phase | Delivers | Builds on |
+|---|---|---|
+| **5 — Attestation schema extension** | A second attestation kind (`subject: "asset"`), signed and verified the same way | `@tonattest/attest`, `@tonattest/rules` — additive, no rework |
+| **6 — Ingestion + publishing API** | Submit a flag (source-attributed) · query current flags for an asset | `@tonattest/service` — same auth, rate-limiting, audit trail already built |
+| **7 — Revocation lifecycle** | A revocation is itself signed and checkable — not silent deletion | Existing attestation audit log, extended |
+| **8 — Distribution & pilot** | A real consumer checking a real flag, offline — proven the way Phase 1 was proven on live mainnet | New — the end-to-end proof phase |
+
+Each phase ends in something independently useful, the same discipline the
+original four phases followed.
+
+---
+
+## Application 1 — Reward verification `built`
+
+Define a rule in your own code. Ask whether a wallet satisfies it. Get back a
+signed, offline-verifiable proof — and the evidence behind the answer. This
+is the product below, in full: proven, tested, and live-mainnet-verified.
 
 ## How it works
 
@@ -521,8 +636,17 @@ timeline
     Phase 2 · Logic : Rule engine · evidence · attestations : Fully verified
     Phase 3 · Service : API · persistence · observability : Built
     Phase 4 · Product : SDK · demo · docs : Built
-    Next : Settlement contract · webhooks · dashboard : DeDust support · self-hosted indexer
+    Phase 5 · Schema : Asset-flag attestation kind : Proposed
+    Phase 6 · Publish : Ingestion + query API for flags : Proposed
+    Phase 7 · Revoke : Signed, checkable revocation : Proposed
+    Phase 8 · Distribute : Real consumer, proven live : Proposed
 ```
+
+Phases 1–4 are [reward verification](#application-1--reward-verification-built),
+done. Phases 5–8 are the [asset trust layer](#application-2--asset-trust-layer-proposed)
+— proposed, not yet built. Further out: DeDust and multi-DEX support, a
+self-hosted indexer, and a dashboard — each earned once the layer above it is
+proven, the same discipline that got phases 1–4 here.
 
 ---
 
