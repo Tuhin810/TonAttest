@@ -17,6 +17,8 @@
 ## Application 2 — Asset Trust Layer
 
 * [Overview](application-2/overview.md)
+* [How It Works](application-2/how-it-works.md)
+* [Liability & Pricing](application-2/liability-and-pricing.md)
 * [Build Plan (Phases 5–8)](application-2/build-plan.md)
 
 ## Operate
