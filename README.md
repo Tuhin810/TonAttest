@@ -117,6 +117,11 @@ publish and consume a finding, from any source, across the ecosystem.**
 That's a distribution problem, and distribution is exactly what an
 attestation is for.
 
+> *"Right now we just have the asset flags... shown only on STON.fi UI. So
+> what I was speaking about is the thing which can **share** [them] with all
+> the wallets."* — Michael, STON.fi marketing, on the discovery call, when
+> asked directly whether this should work *"in unison"* with Esprito.
+
 ```mermaid
 flowchart LR
     D["A finding<br/><i>STON.fi, Esprito,<br/>or any source</i>"] -->|"signed"| T["TonAttest"]
@@ -154,6 +159,68 @@ Same Ed25519 signature. Same `verifyAttestation()`. Same "check it yourself,
 offline, no live trust required" guarantee that already exists for campaigns
 — just pointed at a different kind of fact.
 
+### How a flag actually gets published
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Src as Source<br/><i>e.g. STON.fi</i>
+    participant T as TonAttest
+    participant W as Any wallet or bot
+
+    Note over Src: Already has a finding —<br/>from Esprito, manual review, or otherwise
+
+    Src->>T: POST /v1/flags<br/>{ asset, flag, severity, evidence }<br/>authenticated as "stonfi"
+    T->>T: verify the source's own credentials
+    T->>T: sign { subject: asset, flag, source: "stonfi", … }
+    T-->>Src: attestation id + signature
+
+    Note over W: Later — any consumer,<br/>no relationship with the source required
+
+    W->>T: GET /v1/assets/:address/flags
+    T-->>W: current signed attestation(s)
+    W->>W: verify signature OFFLINE, no call back to TonAttest
+
+    Note over Src,T: Revocation — same source, same auth
+    Src->>T: POST /v1/flags/:id/revoke<br/>authenticated as the ORIGINAL issuer
+    T->>T: reject if requester ≠ original source
+    T->>T: sign a revocation record
+```
+
+Two things this makes concrete rather than implied: **submitting a flag
+requires being authenticated as a real, named source** — nobody can flag an
+asset anonymously or on TonAttest's own authority — and **revoking one
+requires being authenticated as that *same* source**, enforced by the
+service, not left as a policy anyone has to trust.
+
+### Attribution, not adjudication
+
+Every attestation says **"source X claims Y,"** never **"Y is true."** That
+`source` field isn't decoration — it's the entire liability boundary. We
+never independently decide whether a token is malicious; we sign and publish
+a decision someone else already made, with their name attached to it.
+
+That boundary holds on the way out too: **only the source that issued a flag
+can revoke it.** TonAttest never unilaterally decides a flag was wrong —
+doing so would mean making a second independent judgment call, which is
+exactly the liability this design is built to avoid. We stay the courier
+going in and coming out, never the judge.
+
+### Why it can be affordable
+
+The expensive part — reading a contract's bytecode and mathematically
+proving it's a trap — only has to happen **once, ever, per token.** After
+that, "is this token flagged" is a database lookup, not an analysis. We
+never re-run anyone's detection; we serve a result someone already paid to
+compute once. That's the entire reason a trading bot priced out of a direct
+Esprito relationship could afford this: they'd be paying for lookups, not
+for symbolic execution.
+
+**What this deliberately is not:** a cheaper way to detect honeypots
+ourselves. Esprito's technology is genuinely hard and already exists; the
+gap Michael named is that STON.fi's own already-computed findings — using
+Esprito or otherwise — have nowhere to go beyond STON.fi's own UI.
+
 ### What it makes possible
 
 | Consumer | What they get, without building anything themselves |
@@ -174,7 +241,7 @@ partner. This is the layer that makes *any* detector's output portable.
 |---|---|---|
 | **5 — Attestation schema extension** | A second attestation kind (`subject: "asset"`), signed and verified the same way | `@tonattest/attest`, `@tonattest/rules` — additive, no rework |
 | **6 — Ingestion + publishing API** | Submit a flag (source-attributed) · query current flags for an asset | `@tonattest/service` — same auth, rate-limiting, audit trail already built |
-| **7 — Revocation lifecycle** | A revocation is itself signed and checkable — not silent deletion | Existing attestation audit log, extended |
+| **7 — Revocation lifecycle** | Only the original source can revoke its own flag — signed and checkable, not silent deletion | Existing attestation audit log, extended |
 | **8 — Distribution & pilot** | A real consumer checking a real flag, offline — proven the way Phase 1 was proven on live mainnet | New — the end-to-end proof phase |
 
 Each phase ends in something independently useful, the same discipline the

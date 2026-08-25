@@ -19,6 +19,17 @@ Ethan's ask was direct: would TonAttest pivot toward becoming the **distribution
 
 This document is that pivot, written up as requested.
 
+When Ethan directly asked Michael to clarify scope — *"are you imagining
+this as an additional layer that works in unison [with Esprito]?"* —
+Michael's answer settled it:
+
+> *"Right now we just have the asset flags... shown only on STON.fi UI. So
+> what I was speaking about is the thing which can share [them] with all
+> the wallets."*
+
+That is the scope this document commits to: **sharing findings that already
+exist, not producing new ones.**
+
 ## 2. The gap, researched
 
 Before proposing anything, we looked at what actually exists today.
@@ -55,7 +66,36 @@ Today the fact is `{ wallet, campaign, eligible: true }`. This proposal adds a s
 
 Signed with the same Ed25519 mechanism. Verified offline with the same public-key model already documented in the [attestation spec](../tonattest/docs/attestation-spec.md). The signer, the canonicalization, the SDK's `verifyAttestation()` — all reusable without modification. What's new is the *subject* of the attestation (an asset, not a wallet-campaign pair), a public read endpoint, and a real revocation lifecycle.
 
+```mermaid
+flowchart TB
+    SIGN["One signer<br/>@tonattest/attest — Ed25519 + RFC 8785"]
+    SIGN --> F1["Fact A — built<br/><i>wallet X satisfied rule Y</i>"]
+    SIGN --> F2["Fact B — proposed<br/><i>asset X was flagged Z, by source W</i>"]
+    F1 --> V1["Verified offline by<br/>the app paying a reward"]
+    F2 --> V2["Verified offline by<br/>any wallet, bot, or explorer"]
+
+    style SIGN fill:#7651e8,color:#fff,stroke:none
+    style F1 fill:#16805c,color:#fff,stroke:none
+    style F2 fill:#9a6212,color:#fff,stroke:none
+    style V1 fill:#4a4840,color:#fff,stroke:none
+    style V2 fill:#4a4840,color:#fff,stroke:none
+```
+
 ## 4. What this makes possible
+
+```mermaid
+flowchart LR
+    D["A finding<br/><i>STON.fi, Esprito,<br/>or any source</i>"] -->|"signed"| T["TonAttest"]
+    T -->|"GET /v1/assets/:addr/flags"| W["Any wallet"]
+    T -->|"same endpoint"| B["Any trading bot"]
+    T -->|"same endpoint"| E["Any explorer"]
+
+    style D fill:#4a4840,color:#fff,stroke:none
+    style T fill:#7651e8,color:#fff,stroke:none
+    style W fill:#16805c,color:#fff,stroke:none
+    style B fill:#16805c,color:#fff,stroke:none
+    style E fill:#16805c,color:#fff,stroke:none
+```
 
 - **Any wallet** (Tonkeeper, MyTonWallet, others) could check `GET /v1/assets/{address}/flags` before rendering a swap screen and show a warning — without building or licensing their own detection pipeline.
 - **Any trading bot** could refuse to route through a flagged token automatically.
@@ -63,7 +103,65 @@ Signed with the same Ed25519 mechanism. Verified offline with the same public-ke
 - **Esprito's findings become distributable** the same way, if they choose to publish through this layer, without us duplicating their detection engine.
 - **Flags are revocable, properly** — a false positive doesn't require deleting a record and hoping nobody screenshots stale data; a revocation is itself a signed, checkable event.
 
+## 4b. Attribution, not adjudication — the liability boundary
+
+Every attestation states **"source X claims Y about this asset,"** never
+**"Y is true."** The `source` field in §3's schema is not decoration — it is
+the entire boundary between "we relayed a fact" and "we made a judgment
+call." TonAttest never independently determines whether a token is
+malicious; it signs and publishes a determination someone else already made,
+with their name attached and their accountability intact.
+
+The same boundary holds on revocation: **only the issuing source can revoke
+its own flag.** TonAttest does not unilaterally decide a flag was wrong —
+doing so would itself be an independent judgment call, exactly the exposure
+this design avoids. This must be enforced technically (revocation requests
+authenticated against the original issuer), not merely stated as policy.
+
+**Why this can be priced affordably, including for the trading-bot segment
+Ethan named as currently priced out:** the expensive step — reading a
+contract's bytecode and proving it's a trap — happens once, ever, per token.
+After that, checking whether a token is flagged is a database lookup, not an
+analysis. TonAttest never re-runs anyone's detection; it serves an
+already-computed result. That is the entire cost-structure difference that
+makes this affordable where direct detection access is not — and it only
+works honestly if what's being served is a finding a real source stands
+behind, not a repackaged claim with the origin stripped off.
+
 ## 5. Build plan
+
+The mechanism these phases build, concretely:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Src as Source<br/><i>e.g. STON.fi</i>
+    participant T as TonAttest
+    participant W as Any wallet or bot
+
+    Note over Src: Already has a finding —<br/>from Esprito, manual review, or otherwise
+
+    Src->>T: POST /v1/flags<br/>{ asset, flag, severity, evidence }<br/>authenticated as "stonfi"
+    T->>T: verify the source's own credentials
+    T->>T: sign { subject: asset, flag, source: "stonfi", … }
+    T-->>Src: attestation id + signature
+
+    Note over W: Later — any consumer,<br/>no relationship with the source required
+
+    W->>T: GET /v1/assets/:address/flags
+    T-->>W: current signed attestation(s)
+    W->>W: verify signature OFFLINE, no call back to TonAttest
+
+    Note over Src,T: Revocation — same source, same auth
+    Src->>T: POST /v1/flags/:id/revoke<br/>authenticated as the ORIGINAL issuer
+    T->>T: reject if requester ≠ original source
+    T->>T: sign a revocation record
+```
+
+Submitting a flag requires authenticating as a real, named source — nobody
+can flag an asset anonymously or on TonAttest's own authority. Revoking one
+requires authenticating as that *same* source, enforced by the service
+itself rather than left as a policy anyone has to trust.
 
 Phased the same way the original delivery was — each phase ends in something independently useful, so partial completion still leaves value behind.
 
@@ -71,7 +169,7 @@ Phased the same way the original delivery was — each phase ends in something i
 |---|---|---|
 | **5 — Attestation schema extension** | A second attestation *kind* (`subject: "asset"`) alongside the existing campaign kind; canonicalization, signing, and offline verification extended and tested the same way the original was | `@tonattest/attest`, `@tonattest/rules` — no rework, additive types |
 | **6 — Ingestion + publishing API** | Endpoints to submit a flag (authenticated, source-attributed) and to query current flags for an asset, including revocation history | `@tonattest/service` — same Fastify app, new routes, same auth/rate-limit/audit-trail machinery already built |
-| **7 — Revocation lifecycle** | Formal revoke flow: a revocation is itself signed and checkable, distinct from silent deletion; audit trail already exists in Postgres, extended to cover this | Existing `attestations` table + audit log |
+| **7 — Revocation lifecycle** | Formal revoke flow, authenticated to the original issuing source only; a revocation is itself signed and checkable, distinct from silent deletion | Existing `attestations` table + audit log |
 | **8 — Distribution & pilot integration** | A reference integration (e.g., a lookup widget, or a direct pilot with a named wallet/bot) showing a real consumer checking a real flag, offline | New — the "prove it end to end" phase, mirroring how Phase 1 was proven against live mainnet data |
 
 ## 6. What we are explicitly not proposing
